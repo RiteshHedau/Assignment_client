@@ -39,8 +39,6 @@ const EditProfileForm = ({ onClose }) => {
         } catch (error) {
           console.error('Error uploading course:', error);
         }
-    
-
 
   };
 
@@ -56,7 +54,7 @@ const EditProfileForm = ({ onClose }) => {
               name="name"
               value={formData.name}
               onChange={handleInputChange}
-              className="w-full px-4 py-2 border rounded-md"
+              className="w-full px-4 py-2 border rounded-md bg-slate-400"
             />
           </div>
           <div>
@@ -66,7 +64,7 @@ const EditProfileForm = ({ onClose }) => {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              className="w-full px-4 py-2 border rounded-md"
+              className="w-full px-4 py-2 border rounded-md bg-slate-400"
             />
           </div>
           <div>
@@ -75,7 +73,7 @@ const EditProfileForm = ({ onClose }) => {
               type="file"
               name="profilePic"
               onChange={handleFileChange}
-              className="w-full px-4 py-2 border rounded-md"
+              className="w-full px-4 py-2 border rounded-md bg-slate-400"
             />
           </div>
           <div className="flex justify-end">
