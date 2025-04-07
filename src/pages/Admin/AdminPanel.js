@@ -79,7 +79,7 @@ const AdminPanel = () => {
             icon={<FaGraduationCap className="text-blue-600" />}
             title="Courses Management"
             description="Add, edit, and manage course content and settings"
-            link="/admin/coursesAdmin"
+            link="/admin/courses-admin"
             linkText="Manage Courses"
           />
         </div>

@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { loginUser } from "../../ApiCalls/authUserApi";
-import React from "react";
+import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { setUser } from "../../Redux/userSlice";
@@ -45,31 +45,25 @@ function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500">
-      <div className="w-full max-w-md p-8">
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8">
-          <div className="flex justify-center mb-8">
-            {/* Placeholder for logo - replace with your actual logo */}
-            <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center">
-              <span className="text-3xl text-white font-bold">LC</span>
-            </div>
+    <div className="flex min-h-screen">
+      {/* Left Panel - Decorative */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-violet-600 to-indigo-800 p-12 text-white items-center">
+        <div className="max-w-xl">
+          <h1 className="text-5xl font-bold mb-8">Welcome to our platform</h1>
+          <p className="text-lg text-gray-200">Transform your experience with our cutting-edge solutions.</p>
+        </div>
+      </div>
+
+      {/* Right Panel - Login Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-3">Welcome back</h2>
+            <p className="text-gray-600">Please enter your details</p>
           </div>
 
-          <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">
-            Welcome Back
-          </h2>
-          <p className="text-center text-gray-600 mb-8">
-            Please enter your details to sign in
-          </p>
-
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div>
-              <label
-                htmlFor="email"
-                className="block mb-2 text-sm font-semibold text-gray-700"
-              >
-                Email address
-              </label>
+            <div className="relative">
               <input
                 id="email"
                 type="email"
@@ -80,42 +74,42 @@ function Login() {
                     message: "Enter a valid email",
                   },
                 })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-                placeholder="Enter your email"
+                className="peer w-full px-4 py-4 border-2 border-gray-200 rounded-xl placeholder-transparent focus:outline-none focus:border-violet-600 transition-colors"
+                placeholder="Email"
               />
+              <label
+                htmlFor="email"
+                className="absolute left-4 -top-2.5 bg-gray-50 px-2 text-sm text-gray-600 transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:bg-transparent peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-violet-600 peer-focus:bg-gray-50"
+              >
+                Email address
+              </label>
               {errors.email && (
-                <p className="mt-1 text-red-500 text-sm">
-                  {errors.email.message}
-                </p>
+                <p className="mt-1 text-red-500 text-sm">{errors.email.message}</p>
               )}
             </div>
 
-            <div>
-              <label
-                htmlFor="password"
-                className="block mb-2 text-sm font-semibold text-gray-700"
-              >
-                Password
-              </label>
+            <div className="relative">
               <input
                 id="password"
                 type="password"
-                {...register("password", {
-                  required: "Password is required",
-                })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-                placeholder="Enter your password"
+                {...register("password", { required: "Password is required" })}
+                className="peer w-full px-4 py-4 border-2 border-gray-200 rounded-xl placeholder-transparent focus:outline-none focus:border-violet-600 transition-colors"
+                placeholder="Password"
               />
+              <label
+                htmlFor="password"
+                className="absolute left-4 -top-2.5 bg-gray-50 px-2 text-sm text-gray-600 transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:bg-transparent peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-violet-600 peer-focus:bg-gray-50"
+              >
+                Password
+              </label>
               {errors.password && (
-                <p className="mt-1 text-red-500 text-sm">
-                  {errors.password.message}
-                </p>
+                <p className="mt-1 text-red-500 text-sm">{errors.password.message}</p>
               )}
             </div>
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 transition duration-300 transform hover:scale-[1.02] font-semibold text-sm"
+              className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-4 px-6 rounded-xl hover:opacity-90 transform transition-all duration-300 hover:scale-[1.02] focus:scale-[.99] font-medium text-lg shadow-lg shadow-violet-300"
             >
               Sign in
             </button>
@@ -124,9 +118,9 @@ function Login() {
               <span>Don't have an account? </span>
               <Link
                 to="/register"
-                className="text-blue-600 hover:text-blue-700 font-semibold transition duration-200"
+                className="text-violet-600 hover:text-violet-700 font-semibold transition-colors"
               >
-                Create Account
+                Sign up
               </Link>
             </div>
           </form>

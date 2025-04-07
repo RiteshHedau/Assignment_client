@@ -5,8 +5,8 @@ import { getLoggedUser, getAllUsers } from "../ApiCalls/userApiCalls";
 import { useDispatch, useSelector } from "react-redux";
 //import { hideLoader, showLoader } from "../redux/loaderSlice";
 import { setAllUsers, setUser } from "../Redux/userSlice";
-import { setAllCourses } from "./../Redux/courseSlice";
-import { getAllCourses } from "./../ApiCalls/courseApiCalls";
+import { setAllCourses,setAllCoursesTitle } from "./../Redux/courseSlice";
+import { getAllCourses, getAllCoursesTitle } from "./../ApiCalls/courseApiCalls";
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useSelector((state) => state.userReducer);
@@ -71,11 +71,26 @@ const ProtectedRoute = ({ children }) => {
     }
   };
 
+  const getAllCoursesTitleFromDb = async () => {
+    let response = null;
+    try {
+      response = await getAllCoursesTitle();
+      if (response.success) {
+        dispatch(setAllCoursesTitle(response.data.titles));
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      console.error('Error fetching course titles:', error);
+    }
+  };
+
   useEffect(() => {
     if (localStorage.getItem("token")) {
       getloggedInUser();
       getAllUsersFromDb();
       getAllCoursesFromDb();
+      getAllCoursesTitleFromDb();
       console.log("In ProtectedRoute");
     } else {
       navigate("/login");

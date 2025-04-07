@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import ProfilePopup from "./ProfilePopup";
 import { RxAvatar } from "react-icons/rx";
 import { IoSearch } from "react-icons/io5";
@@ -9,6 +9,18 @@ import {
   getAllCoursesBasedOnQuery,
   getAllCoursesTitle,
 } from "./../ApiCalls/courseApiCalls";
+import {
+  FaHome,
+  FaGraduationCap,
+  FaBook,
+  FaInfoCircle,
+  FaEnvelope,
+  FaSearch,
+  FaBars,
+  FaTimes,
+  FaUserPlus,
+} from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,6 +30,8 @@ const Navigation = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [searchClick, setSearchClick] = useState("");
   const [inputFocused, setInputFocused] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [isTabletSearchOpen, setIsTabletSearchOpen] = useState(false);
 
   const user = useSelector((state) => state.userReducer.user);
   const allCoursesTitle = useSelector(
@@ -27,6 +41,15 @@ const Navigation = () => {
 
   const closedNav = useRef(null);
   const debounceTimeout = useRef(null);
+  const location = useLocation();
+
+  const navLinks = [
+    { path: "/", name: "Home", icon: <FaHome /> },
+    { path: "/dashboard", name: "Dashboard", icon: <FaGraduationCap /> },
+    { path: "/courses", name: "Courses", icon: <FaBook /> },
+    { path: "/about", name: "About", icon: <FaInfoCircle /> },
+    { path: "/contact", name: "Contact", icon: <FaEnvelope /> },
+  ];
 
   const toggleProfilePopup = () => {
     setIsProfileOpen(!isProfileOpen);
@@ -36,6 +59,22 @@ const Navigation = () => {
   const closePopups = () => {
     setIsProfileOpen(false);
     setIsOpen(false);
+  };
+
+  const toggleMobileSearch = () => {
+    setIsMobileSearchOpen(!isMobileSearchOpen);
+    if (!isMobileSearchOpen) {
+      setSearchInput("");
+      setSuggestions([]);
+    }
+  };
+
+  const toggleTabletSearch = () => {
+    setIsTabletSearchOpen(!isTabletSearchOpen);
+    if (!isTabletSearchOpen) {
+      setSearchInput("");
+      setSuggestions([]);
+    }
   };
 
   useEffect(() => {
@@ -64,14 +103,18 @@ const Navigation = () => {
 
     debounceTimeout.current = setTimeout(() => {
       if (value.trim()) {
-        const filteredSuggestions = allCoursesTitle
-          .filter((course) =>
+        // Make sure allCoursesTitle is an array and properly structured
+        if (Array.isArray(allCoursesTitle)) {
+          const filteredSuggestions = allCoursesTitle.filter((course) =>
             course.title.toLowerCase().includes(value.toLowerCase())
-          )
-          .slice(0, 5); // Limit to 5 suggestions
-        setSuggestions(filteredSuggestions);
+          );
+          setSuggestions(filteredSuggestions.slice(0, 5)); // Limit to 5 suggestions
+        } else {
+          console.error('allCoursesTitle is not an array:', allCoursesTitle);
+          //setSuggestions([]);
+        }
       } else {
-        setSuggestions([]);
+        //setSuggestions([]);
       }
     }, 300);
   };
@@ -89,9 +132,15 @@ const Navigation = () => {
   };
 
   const fetchAllCoursesTitle = async () => {
-    const response = await getAllCoursesTitle();
-    if (response?.success) {
-      dispatch(setAllCoursesTitle(response?.data.titles));
+    try {
+      const response = await getAllCoursesTitle();
+      if (response?.success) {
+        // Make sure we're storing the correct data structure
+        const titles = response.data.titles || [];
+        dispatch(setAllCoursesTitle(titles));
+      }
+    } catch (error) {
+      console.error('Error fetching course titles:', error);
     }
   };
 
@@ -119,183 +168,288 @@ const Navigation = () => {
   }, [isLoggedIn, isOpen, user]);
 
   return (
-    <nav className="bg-gradient-to-r from-blue-500 to-blue-700 text-white p-4 shadow-lg">
-      <div className="max-w-6xl mx-auto w-full flex flex-col lg:flex-row justify-between items-center gap-4">
-        <div className="text-2xl font-bold order-1">
-          <Link
-            to="/"
-            className="hover:text-yellow-300 transition duration-300"
-          >
-            MySite
-          </Link>
-        </div>
-        <div className="hidden lg:flex space-x-6 order-2">
-          <Link
-            to="/"
-            className="hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
-          >
-            Home
-          </Link>
-          <Link
-            to="/dashboard"
-            className="hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
-          >
-            Dashboard
-          </Link>
-          <Link
-            to="/courses"
-            className="hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
-          >
-            Courses
-          </Link>
-          <Link
-            to="/about"
-            className="hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
-          >
-            About
-          </Link>
-          <Link
-            to="/contact"
-            className="hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
-          >
-            Contact
-          </Link>
-        </div>
-        <div className="flex-1 w-full lg:w-auto lg:max-w-[400px] px-2 order-3 lg:order-2">
-          <div className="relative w-full">
-            <input
-              type="text"
-              placeholder="Search courses..."
-              value={searchInput}
-              onChange={handleSearchInputChange}
-              onFocus={() => setInputFocused(true)}
-              className="w-full px-4 py-2 rounded-l-full text-black focus:outline-none border-2 border-r-0 border-blue-300 focus:border-blue-500 text-sm md:text-base"
-            />
+    <nav className="sticky top-0 z-50 bg-white shadow-lg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          {/* Logo Section */}
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center space-x-3">
+              <FaGraduationCap className="h-8 w-8 text-blue-600" />
+              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                LearnCraft
+              </span>
+            </Link>
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 group ${
+                  location.pathname === link.path
+                    ? "text-blue-600 bg-blue-50"
+                    : "text-gray-600"
+                }`}
+              >
+                <span className="mr-2 text-lg group-hover:scale-110 transition-transform">
+                  {link.icon}
+                </span>
+                {link.name}
+              </Link>
+            ))}
+          </div>
+
+          {/* Search and Profile Section */}
+          <div className="flex items-center space-x-4">
+            {/* Desktop Search Button - Visible on tablet */}
             <button
-              onClick={handleSearch}
-              className="absolute right-0 top-0 h-full px-4 md:px-6 bg-blue-600 text-white rounded-r-full hover:bg-blue-700 transition duration-300 flex items-center"
+              onClick={toggleTabletSearch}
+              className="hidden md:block lg:hidden p-2 text-gray-600 hover:text-blue-600 transition-colors"
             >
-              <IoSearch className="text-lg" />
+              <FaSearch size={20} />
             </button>
 
-            {suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 bg-white mt-1 rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50 max-h-[60vh] overflow-y-auto">
-                {suggestions.map((course, index) => (
-                  <div
-                    key={index}
-                    className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-gray-800 text-sm border-b last:border-0"
-                    onClick={() => handleSuggestionClick(course.title)}
-                  >
-                    {course.title}
-                  </div>
-                ))}
+            {/* Desktop Search - Visible only on large screens */}
+            <div className="hidden lg:block relative">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search courses..."
+                  value={searchInput}
+                  onChange={handleSearchInputChange}
+                  onFocus={() => setInputFocused(true)}
+                  className="w-64 pl-10 pr-4 py-2 rounded-full border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-all duration-200"
+                />
+                <button
+                  onClick={handleSearch}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full hover:bg-gray-100"
+                >
+                  <FaSearch className="text-gray-400 hover:text-blue-500" />
+                </button>
               </div>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center space-x-4 order-2 lg:order-3">
-          {localStorage.getItem("token") ? (
-            <div className="relative hidden sm:block">
-              <button
-                onClick={toggleProfilePopup}
-                className="px-4 py-2 rounded transition duration-300 flex items-center space-x-2"
-              >
-                {user?.profilePic ? (
-                  <img
-                    src={user?.profilePic}
-                    alt="Avatar"
-                    className="w-16 h-16 rounded-full ml-2"
-                  />
-                ) : (
-                  <RxAvatar className="size-14 ml-2" />
+
+              <AnimatePresence>
+                {suggestions.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute mt-2 w-full bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-50"
+                  >
+                    {suggestions.map((course, index) => (
+                      <div
+                        key={index}
+                        className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-gray-800 text-sm border-b last:border-0"
+                        onClick={() => handleSuggestionClick(course.title)}
+                      >
+                        {course.title}
+                      </div>
+                    ))}
+                  </motion.div>
                 )}
-              </button>
+              </AnimatePresence>
             </div>
-          ) : (
-            <Link
-              to="/register"
-              className="hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
+
+            {/* Mobile Search Button */}
+            <button
+              onClick={toggleMobileSearch}
+              className="sm:hidden p-2 text-gray-600 hover:text-blue-600 transition-colors"
             >
-              Register
-            </Link>
-          )}
-          <div className="lg:hidden">
+              <FaSearch size={20} />
+            </button>
+
+            {/* Profile/Register Button */}
+            {localStorage.getItem("token") ? (
+              <div className="relative">
+                <button
+                  onClick={toggleProfilePopup}
+                  className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+                >
+                  {user?.profilePic ? (
+                    <img
+                      src={user?.profilePic}
+                      alt="Profile"
+                      className="w-10 h-10 rounded-full border-2 border-blue-500 hover:border-blue-600 transition-colors"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                      <RxAvatar className="w-6 h-6 text-blue-600" />
+                    </div>
+                  )}
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/register"
+                className="flex items-center px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+              >
+                <FaUserPlus className="mr-2" />
+                Register
+              </Link>
+            )}
+
+            {/* Mobile menu button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="focus:outline-none"
+              className="md:hidden rounded-lg p-2 hover:bg-gray-100 transition-colors"
             >
-              <svg
-                className="w-8 h-8"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h16m-7 6h7"
-                />
-              </svg>
+              {isOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
             </button>
           </div>
         </div>
       </div>
-      {isOpen && (
-        <div
-          ref={closedNav}
-          onClick={() => setIsOpen(!isOpen)}
-          className="lg:hidden mt-4 space-y-2"
-        >
-          <Link
-            to="/"
-            className="block hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
+
+      {/* Mobile Search Overlay */}
+      <AnimatePresence>
+        {isMobileSearchOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed inset-0 z-50 bg-white/95 backdrop-blur-sm p-4"
           >
-            Home
-          </Link>
-          <Link
-            to="/dashboard"
-            className="block hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
+            <div className="max-w-md mx-auto pt-4">
+              {/* Close button */}
+              <button
+                onClick={toggleMobileSearch}
+                className="absolute top-4 right-4 p-2 text-gray-600 hover:text-red-500"
+              >
+                <FaTimes size={24} />
+              </button>
+
+              {/* Search input */}
+              <div className="relative mt-8">
+                <input
+                  type="text"
+                  placeholder="Search courses..."
+                  value={searchInput}
+                  onChange={handleSearchInputChange}
+                  onFocus={() => setInputFocused(true)}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-all duration-200"
+                  autoFocus
+                />
+                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              </div>
+
+              {/* Mobile Search Suggestions */}
+              <div className="mt-4 bg-white rounded-xl shadow-lg border border-gray-200">
+                {suggestions.map((course, index) => (
+                  <div
+                    key={index}
+                    onClick={() => {
+                      handleSuggestionClick(course.title);
+                      toggleMobileSearch();
+                    }}
+                    className="px-4 py-3 border-b last:border-b-0 hover:bg-blue-50 cursor-pointer flex items-center space-x-3"
+                  >
+                    <FaBook className="text-gray-400" />
+                    <span className="text-gray-700">{course.title}</span>
+                  </div>
+                ))}
+                {suggestions.length === 0 && searchInput && (
+                  <div className="px-4 py-3 text-gray-500 text-center">
+                    {/* No courses found  */}
+                    
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Tablet Search Overlay */}
+      <AnimatePresence>
+        {isTabletSearchOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed inset-0 z-50 bg-white/95 backdrop-blur-sm p-4 hidden md:block lg:hidden"
           >
-            Dashboard
-          </Link>
-          <Link
-            to="/courses"
-            className="block hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
+            <div className="max-w-2xl mx-auto pt-4">
+              {/* Close button */}
+              <button
+                onClick={toggleTabletSearch}
+                className="absolute top-4 right-4 p-2 text-gray-600 hover:text-red-500"
+              >
+                <FaTimes size={24} />
+              </button>
+
+              {/* Search input */}
+              <div className="relative mt-8">
+                <input
+                  type="text"
+                  placeholder="Search courses..."
+                  value={searchInput}
+                  onChange={handleSearchInputChange}
+                  onFocus={() => setInputFocused(true)}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-all duration-200"
+                  autoFocus
+                />
+                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              </div>
+
+              {/* Tablet Search Suggestions */}
+              <div className="mt-4 bg-white rounded-xl shadow-lg border border-gray-200">
+                {suggestions.map((course, index) => (
+                  <div
+                    key={index}
+                    onClick={() => {
+                      handleSuggestionClick(course.title);
+                      toggleTabletSearch();
+                    }}
+                    className="px-4 py-3 border-b last:border-b-0 hover:bg-blue-50 cursor-pointer flex items-center space-x-3"
+                  >
+                    <FaBook className="text-gray-400" />
+                    <span className="text-gray-700">{course.title}</span>
+                  </div>
+                ))}
+                {suggestions.length === 0 && searchInput && (
+                  <div className="px-4 py-3 text-gray-500 text-center">
+                    No courses found
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile Navigation */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden border-t border-gray-200"
           >
-            Courses
-          </Link>
-          <Link
-            to="/about"
-            className="block hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
-          >
-            About
-          </Link>
-          <Link
-            to="/contact"
-            className="block hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
-          >
-            Contact
-          </Link>
-          {localStorage.getItem("token") !== null ? (
-            <button
-              onClick={toggleProfilePopup}
-              className="block mx-auto hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
-            >
-              Profile
-            </button>
-          ) : (
-            <Link
-              to="/register"
-              className="block mx-auto hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
-            >
-              Register
-            </Link>
-          )}
-        </div>
-      )}
-      <div className="absolute top-4 right-4 mt-20 mr-4">
+            <div className="px-4 pt-2 pb-3 space-y-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  onClick={() => setIsOpen(false)}
+                  className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
+                    location.pathname === link.path
+                      ? "text-blue-600 bg-blue-50"
+                      : "text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  <span className="mr-3">{link.icon}</span>
+                  {link.name}
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Profile Popup */}
+      <div className="absolute top-16 right-4">
         <ProfilePopup
           isOpen={isProfileOpen}
           onClose={closePopups}

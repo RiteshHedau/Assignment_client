@@ -10,6 +10,10 @@ import AdminPanel from "../pages/Admin/AdminPanel";
 import UserList from "../pages/Admin/UserList";
 import CoursesPanel from "../pages/Admin/CoursesPanel";
 import EditUserForm from "../pages/Admin/EditUserForm";
+import EditCourse from "../pages/Admin/Courses/EditCourse";
+import DeleteCourse from "../pages/Admin/Courses/DeleteCourse";
+import UploadCourse from "../pages/Admin/Courses/UploadCourse";
+import UploadMultipleCourses from "../pages/Admin/Courses/UploadMultipleCourses";
 
 const router = createBrowserRouter([
   {
@@ -42,14 +46,22 @@ const router = createBrowserRouter([
             <AdminPanel />
           </ProtectedRoute>
         ),
-        children:[
-          {path: "users", element: <UserList /> },
-          {path: "coursesAdmin", element: <CoursesPanel /> },
-        ]
+        children: [
+          { path: "users", element: <UserList /> },
+          { path: "courses-admin", element: <CoursesPanel /> },
+          { path: "courses-edit", element: <EditCourse /> },
+          { path: "courses-delete", element: <DeleteCourse /> },
+          { path: "courses-upload", element: <UploadCourse /> },
+          {
+            path: "courses/upload-multiple",
+            element: <UploadMultipleCourses />,
+          },
+        ],
       },
       {
-        path:"profile", element:<EditUserForm/>
-      }
+        path: "profile",
+        element: <EditUserForm />,
+      },
     ],
   },
 ]);

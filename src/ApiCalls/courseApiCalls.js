@@ -59,3 +59,39 @@ export const createAllCourses = async (courses) => {
     return error;
   }
 };
+
+export const deleteCourse = async (courseId) => {
+  try {
+    const response = await axiosInstance.delete(
+      url + `/courses/delete-course/${courseId}`
+    );
+    return response.data;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const updateCourse = async (courseId, course) => {
+  try {
+    const response = await axiosInstance.put(
+      url + `/courses/update-course/${courseId}`,
+      course,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    return error;
+  }
+};
+export const getCourseById = async (courseId) => {
+  try {
+    const response = await axiosInstance.get(
+      url + `/courses/get-course/${courseId}`
+    );
+    return response.data;
+  } catch (error) {
+    return error;
+  }
+};
