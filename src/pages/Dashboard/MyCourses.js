@@ -1,32 +1,69 @@
-import React from 'react';
+import React from "react";
+import { FaGraduationCap } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const MyCourses = ({ courses }) => {
-  return (
-    <div className="w-full p-6 bg-white shadow-lg rounded-lg mb-6">
-      <h2 className="text-xl font-semibold mb-4">My Learning</h2>
-      {courses.length === 0 ? (
-        <p className="text-gray-600">You haven’t enrolled in any courses yet. Explore courses to get started!</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses?.map(course => (
-            <div key={course?.id} className="p-4 bg-gray-100 rounded-lg shadow-md">
-              <img src={course?.image} alt={course?.title} className="w-full h-32 object-cover rounded-lg mb-4"/>
-              <h3 className="text-lg font-semibold mb-2">{course?.title}</h3>
-              <p className="text-gray-600 mb-2">Instructor: {course?.instructor}</p>
-              <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-                <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${course?.progress}%` }}></div>
-              </div>
-              <div className="flex justify-between">
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg">Resume</button>
-                <button className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg">View Details</button>
-                <button className="bg-red-600 text-white px-4 py-2 rounded-lg">Unenroll</button>
-              </div>
-            </div>
-          ))}
+  if (!courses?.length) {
+    return (
+      <div className="bg-white rounded-lg shadow p-6">
+        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+          <FaGraduationCap className="text-blue-600" />
+          My Learning
+        </h2>
+        <div className="text-center py-8">
+          <p className="text-gray-500">No courses enrolled yet.</p>
+          <Link
+            to="/courses"
+            className="text-blue-600 hover:underline mt-2 inline-block"
+          >
+            Browse Courses
+          </Link>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full p-4 sm:p-6 bg-white rounded-xl shadow-sm">
+      <h2 className="text-lg sm:text-xl font-semibold mb-4">My Learning</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {courses?.map((course) => (
+          <div key={course?.id} className="bg-gray-50 rounded-lg p-3 sm:p-4">
+            <img
+              src={course?.image}
+              alt={course?.title}
+              className="w-full h-32 sm:h-40 object-cover rounded-lg mb-3"
+            />
+            <h3 className="text-base sm:text-lg font-semibold line-clamp-1">
+              {course?.title}
+            </h3>
+            <p className="text-gray-600 text-sm mb-2">
+              Instructor: {course?.instructor}
+            </p>
+
+            <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
+              <div
+                className="bg-blue-600 rounded-full h-2 transition-all duration-300"
+                style={{ width: `${course?.progress}%` }}
+              ></div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <button className="flex-1 min-w-[80px] bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm">
+                Resume
+              </button>
+              <button className="flex-1 min-w-[80px] bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-sm">
+                Details
+              </button>
+              <button className="flex-1 min-w-[80px] bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm">
+                Unenroll
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
-}
+};
 
 export default MyCourses;

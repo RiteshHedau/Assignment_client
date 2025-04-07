@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
-import { updateUserData } from '../ApiCalls/userApiCalls';
+import React, { useState } from "react";
+import { updateUserData } from "./../ApiCalls/userApiCalls";
+import { FaUser, FaEnvelope, FaCamera, FaTimes, FaSave } from "react-icons/fa";
 
 const EditProfileForm = ({ onClose }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    name: "",
+    email: "",
     profilePic: null,
   });
 
-  const[profilePicFile,setProfilePicFile]=useState(null);
+  const [profilePicFile, setProfilePicFile] = useState(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -19,77 +20,136 @@ const EditProfileForm = ({ onClose }) => {
   };
 
   const handleFileChange = (e) => {
-    setProfilePicFile(e.target.files[0])
+    setProfilePicFile(e.target.files[0]);
   };
 
-  const handleFormSubmit = async(e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    
+
     let fileFormData = new FormData();
-    fileFormData.append('profilePic', profilePicFile);
+    fileFormData.append("profilePic", profilePicFile);
     Object.keys(formData).forEach((key) => {
       fileFormData.append(key, formData[key]);
     });
 
     try {
-          const response = await updateUserData(fileFormData);
-          if (response.status === 200) {
-            console.log('Course Data:', response.data);
-          }
-        } catch (error) {
-          console.error('Error uploading course:', error);
-        }
+      const response = await updateUserData(fileFormData);
+      if (response.status === 200) {
+        console.log("User Data:", response.data);
+        onClose(); // Close the popup only after successful submission
+      }
+    } catch (error) {
+      console.error("Error updating user data:", error);
+    }
+  };
 
+  const handleClose = () => {
+    onClose();
+   // setIsProfileOpen(true); // Reopen profile popup when edit form closes
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-6 md:p-8 rounded-md shadow-lg w-full max-w-md mx-4 overflow-y-auto max-h-screen">
-        <h2 className="text-2xl font-bold mb-4">Edit Profile</h2>
-        <form  onSubmit={handleFormSubmit} encType='multipart/form-data' className="space-y-4">
-          <div>
-            <label className="block text-gray-700">Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 border rounded-md bg-slate-400"
-            />
+    <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 z-50">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-white">Edit Profile</h2>
+            <button
+              onClick={handleClose}
+              className="text-white hover:text-red-200 transition-colors"
+            >
+              <FaTimes size={24} />
+            </button>
           </div>
-          <div>
-            <label className="block text-gray-700">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 border rounded-md bg-slate-400"
-            />
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleFormSubmit} className="p-6 space-y-6">
+          {/* Profile Image Upload */}
+          <div className="flex flex-col items-center mb-6">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center mb-2">
+                {profilePicFile ? (
+                  <img
+                    src={URL.createObjectURL(profilePicFile)}
+                    alt="Profile Preview"
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  <FaUser size={40} className="text-blue-500" />
+                )}
+              </div>
+              <label
+                htmlFor="profilePic"
+                className="absolute bottom-0 right-0 bg-blue-500 p-2 rounded-full cursor-pointer hover:bg-blue-600 transition-colors"
+              >
+                <FaCamera className="text-white" size={14} />
+              </label>
+              <input
+                type="file"
+                id="profilePic"
+                name="profilePic"
+                onChange={handleFileChange}
+                className="hidden"
+                accept="image/*"
+              />
+            </div>
+            <span className="text-sm text-gray-500">
+              Click icon to change profile picture
+            </span>
           </div>
-          <div>
-            <label className="block text-gray-700">Profile Image</label>
-            <input
-              type="file"
-              name="profilePic"
-              onChange={handleFileChange}
-              className="w-full px-4 py-2 border rounded-md bg-slate-400"
-            />
+
+          {/* Name Input */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Name
+            </label>
+            <div className="relative">
+              <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                placeholder="Enter your name"
+              />
+            </div>
           </div>
-          <div className="flex justify-end">
+
+          {/* Email Input */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <div className="relative">
+              <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                placeholder="Enter your email"
+              />
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-4 pt-4">
             <button
               type="button"
-              onClick={onClose}
-              className="bg-gray-500 text-white px-4 py-2 rounded mr-2"
+              onClick={handleClose}
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
             >
-              Cancel
+              <FaTimes /> Cancel
             </button>
             <button
               type="submit"
-              onClick={onClose}
-              className="bg-blue-500 text-white px-4 py-2 rounded"
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
             >
-              Save
+              <FaSave /> Save Changes
             </button>
           </div>
         </form>

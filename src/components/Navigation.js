@@ -38,41 +38,60 @@ const Navigation = () => {
     setIsOpen(false);
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".search-container")) {
+        setSuggestions([]);
+        setInputFocused(false);
+      }
+      if (closedNav.current && !closedNav.current.contains(event.target)) {
+        closePopups();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleSearchInputChange = (e) => {
     const value = e.target.value;
     setSearchInput(value);
+    setSearchClick("");
 
     if (debounceTimeout.current) {
       clearTimeout(debounceTimeout.current);
     }
 
     debounceTimeout.current = setTimeout(() => {
-      if (value) {
-        const titles = allCoursesTitle.map((course) => course.title);
-        const filteredSuggestions = titles.filter(
-          (suggestion) =>
-            typeof suggestion === "string" &&
-            suggestion.toLowerCase().includes(value.toLowerCase())
-        );
+      if (value.trim()) {
+        const filteredSuggestions = allCoursesTitle
+          .filter((course) =>
+            course.title.toLowerCase().includes(value.toLowerCase())
+          )
+          .slice(0, 5); // Limit to 5 suggestions
         setSuggestions(filteredSuggestions);
-        console.log("allCoursesTitle", allCoursesTitle);
       } else {
         setSuggestions([]);
       }
-    }, 300); // 300ms debounce time
+    }, 300);
   };
 
-  const handleSuggestionClick = (suggestion) => {
+  const handleSuggestionClick = async (suggestion) => {
     setSearchInput(suggestion);
     setSearchClick(suggestion);
     setSuggestions([]);
+    setInputFocused(false);
+
+    const response = await getAllCoursesBasedOnQuery(suggestion);
+    if (response?.success) {
+      dispatch(setAllCourses(response?.data));
+    }
   };
 
   const fetchAllCoursesTitle = async () => {
     const response = await getAllCoursesTitle();
     if (response?.success) {
       dispatch(setAllCoursesTitle(response?.data.titles));
-      console.log("setSuggestionArray", response?.data.titles);
     }
   };
 
@@ -81,13 +100,14 @@ const Navigation = () => {
   }, [user]);
 
   const handleSearch = async () => {
-    const response = await getAllCoursesBasedOnQuery(
-      searchClick || searchInput
-    );
+    const searchTerm = searchClick || searchInput;
+    if (!searchTerm.trim()) return;
+
+    const response = await getAllCoursesBasedOnQuery(searchTerm);
     if (response?.success) {
       dispatch(setAllCourses(response?.data));
     }
-    console.log("Search input:", searchInput);
+    setSuggestions([]);
   };
 
   useEffect(() => {
@@ -96,23 +116,12 @@ const Navigation = () => {
     } else {
       setIsLoggedIn(true);
     }
-
-    const handleClickOutside = (event) => {
-      if (closedNav.current && !closedNav.current.contains(event.target)) {
-        closePopups();
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
   }, [isLoggedIn, isOpen, user]);
 
   return (
     <nav className="bg-gradient-to-r from-blue-500 to-blue-700 text-white p-4 shadow-lg">
-      <div className="max-w-6xl mx-auto w-full flex justify-between items-center">
-        <div className="text-2xl font-bold">
+      <div className="max-w-6xl mx-auto w-full flex flex-col lg:flex-row justify-between items-center gap-4">
+        <div className="text-2xl font-bold order-1">
           <Link
             to="/"
             className="hover:text-yellow-300 transition duration-300"
@@ -120,7 +129,7 @@ const Navigation = () => {
             MySite
           </Link>
         </div>
-        <div className="hidden lg:flex space-x-6">
+        <div className="hidden lg:flex space-x-6 order-2">
           <Link
             to="/"
             className="hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
@@ -152,39 +161,41 @@ const Navigation = () => {
             Contact
           </Link>
         </div>
-        <div className="flex ml-3 items-center bg-white rounded-full overflow-hidden shadow-md relative">
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchInput}
-            onChange={handleSearchInputChange}
-            onFocus={() => setInputFocused(true)}
-            onBlur={() => setInputFocused(false)}
-            className="w-full max-w-xs px-4 py-2 rounded-full text-black focus:outline-none"
-          />
-          <button
-            onClick={handleSearch}
-            className="bg-blue-700 text-white px-4 py-2 rounded-full hover:bg-blue-800 transition duration-300"
-          >
-            <IoSearch className="text-lg" />
-          </button>
-          {inputFocused && suggestions.length > 0 && (
-            <div className="bg-white absolute top-12 left-0 right-0 text-black rounded shadow-lg w-full">
-              {allCoursesTitle.map((suggestion, index) => (
-                <div
-                  key={index}
-                  className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                  onMouseDown={() => handleSuggestionClick(suggestion.title)}
-                >
-                  {suggestion.title}
-                </div>
-              ))}
-            </div>
-          )}
+        <div className="flex-1 w-full lg:w-auto lg:max-w-[400px] px-2 order-3 lg:order-2">
+          <div className="relative w-full">
+            <input
+              type="text"
+              placeholder="Search courses..."
+              value={searchInput}
+              onChange={handleSearchInputChange}
+              onFocus={() => setInputFocused(true)}
+              className="w-full px-4 py-2 rounded-l-full text-black focus:outline-none border-2 border-r-0 border-blue-300 focus:border-blue-500 text-sm md:text-base"
+            />
+            <button
+              onClick={handleSearch}
+              className="absolute right-0 top-0 h-full px-4 md:px-6 bg-blue-600 text-white rounded-r-full hover:bg-blue-700 transition duration-300 flex items-center"
+            >
+              <IoSearch className="text-lg" />
+            </button>
+
+            {suggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 bg-white mt-1 rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50 max-h-[60vh] overflow-y-auto">
+                {suggestions.map((course, index) => (
+                  <div
+                    key={index}
+                    className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-gray-800 text-sm border-b last:border-0"
+                    onClick={() => handleSuggestionClick(course.title)}
+                  >
+                    {course.title}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-        <div className="flex items-center space-x-4">
-          {isLoggedIn ? (
-            <div className="relative">
+        <div className="flex items-center space-x-4 order-2 lg:order-3">
+          {localStorage.getItem("token") ? (
+            <div className="relative hidden sm:block">
               <button
                 onClick={toggleProfilePopup}
                 className="px-4 py-2 rounded transition duration-300 flex items-center space-x-2"
@@ -232,7 +243,11 @@ const Navigation = () => {
         </div>
       </div>
       {isOpen && (
-        <div ref={closedNav} className="lg:hidden mt-4 space-y-2">
+        <div
+          ref={closedNav}
+          onClick={() => setIsOpen(!isOpen)}
+          className="lg:hidden mt-4 space-y-2"
+        >
           <Link
             to="/"
             className="block hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
@@ -282,7 +297,7 @@ const Navigation = () => {
       )}
       <div className="absolute top-4 right-4 mt-20 mr-4">
         <ProfilePopup
-          isOpen={!isProfileOpen}
+          isOpen={isProfileOpen}
           onClose={closePopups}
           user={user}
         />

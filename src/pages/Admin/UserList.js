@@ -34,7 +34,7 @@ const UserList = () => {
 
   return (
     <div>
-      <h2>User List</h2>
+     
       <table className="min-w-full bg-white">
         <thead>
           <tr>
