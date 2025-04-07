@@ -5,7 +5,10 @@ import { RxAvatar } from "react-icons/rx";
 import { IoSearch } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { setAllCourses, setAllCoursesTitle } from "./../Redux/courseSlice";
-import { getAllCoursesBasedOnQuery, getAllCoursesTitle } from "./../ApiCalls/courseApiCalls";
+import {
+  getAllCoursesBasedOnQuery,
+  getAllCoursesTitle,
+} from "./../ApiCalls/courseApiCalls";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,7 +20,9 @@ const Navigation = () => {
   const [inputFocused, setInputFocused] = useState(false);
 
   const user = useSelector((state) => state.userReducer.user);
-  const allCoursesTitle = useSelector((state) => state.courseReducer.allCoursesTitle);
+  const allCoursesTitle = useSelector(
+    (state) => state.courseReducer.allCoursesTitle
+  );
   const dispatch = useDispatch();
 
   const closedNav = useRef(null);
@@ -43,9 +48,11 @@ const Navigation = () => {
 
     debounceTimeout.current = setTimeout(() => {
       if (value) {
-        const titles = allCoursesTitle.map(course => course.title);
-        const filteredSuggestions = titles.filter((suggestion) =>
-          typeof suggestion === "string" && suggestion.toLowerCase().includes(value.toLowerCase())
+        const titles = allCoursesTitle.map((course) => course.title);
+        const filteredSuggestions = titles.filter(
+          (suggestion) =>
+            typeof suggestion === "string" &&
+            suggestion.toLowerCase().includes(value.toLowerCase())
         );
         setSuggestions(filteredSuggestions);
         console.log("allCoursesTitle", allCoursesTitle);
@@ -74,7 +81,9 @@ const Navigation = () => {
   }, [user]);
 
   const handleSearch = async () => {
-    const response = await getAllCoursesBasedOnQuery(searchClick || searchInput);
+    const response = await getAllCoursesBasedOnQuery(
+      searchClick || searchInput
+    );
     if (response?.success) {
       dispatch(setAllCourses(response?.data));
     }
@@ -104,24 +113,42 @@ const Navigation = () => {
     <nav className="bg-gradient-to-r from-blue-500 to-blue-700 text-white p-4 shadow-lg">
       <div className="max-w-6xl mx-auto w-full flex justify-between items-center">
         <div className="text-2xl font-bold">
-          <Link to="/" className="hover:text-yellow-300 transition duration-300">
+          <Link
+            to="/"
+            className="hover:text-yellow-300 transition duration-300"
+          >
             MySite
           </Link>
         </div>
         <div className="hidden lg:flex space-x-6">
-          <Link to="/" className="hover:bg-blue-800 px-4 py-2 rounded transition duration-300">
+          <Link
+            to="/"
+            className="hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
+          >
             Home
           </Link>
-          <Link to="/dashboard" className="hover:bg-blue-800 px-4 py-2 rounded transition duration-300">
+          <Link
+            to="/dashboard"
+            className="hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
+          >
             Dashboard
           </Link>
-          <Link to="/courses" className="hover:bg-blue-800 px-4 py-2 rounded transition duration-300">
+          <Link
+            to="/courses"
+            className="hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
+          >
             Courses
           </Link>
-          <Link to="/about" className="hover:bg-blue-800 px-4 py-2 rounded transition duration-300">
+          <Link
+            to="/about"
+            className="hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
+          >
             About
           </Link>
-          <Link to="/contact" className="hover:bg-blue-800 px-4 py-2 rounded transition duration-300">
+          <Link
+            to="/contact"
+            className="hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
+          >
             Contact
           </Link>
         </div>
@@ -143,8 +170,7 @@ const Navigation = () => {
           </button>
           {inputFocused && suggestions.length > 0 && (
             <div className="bg-white absolute top-12 left-0 right-0 text-black rounded shadow-lg w-full">
-              {
-              allCoursesTitle.map((suggestion, index) => (
+              {allCoursesTitle.map((suggestion, index) => (
                 <div
                   key={index}
                   className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
@@ -175,12 +201,18 @@ const Navigation = () => {
               </button>
             </div>
           ) : (
-            <Link to="/register" className="hover:bg-blue-800 px-4 py-2 rounded transition duration-300">
+            <Link
+              to="/register"
+              className="hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
+            >
               Register
             </Link>
           )}
           <div className="lg:hidden">
-            <button onClick={() => setIsOpen(!isOpen)} className="focus:outline-none">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="focus:outline-none"
+            >
               <svg
                 className="w-8 h-8"
                 fill="none"
@@ -188,7 +220,12 @@ const Navigation = () => {
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"/>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 6h16M4 12h16m-7 6h7"
+                />
               </svg>
             </button>
           </div>
@@ -196,34 +233,59 @@ const Navigation = () => {
       </div>
       {isOpen && (
         <div ref={closedNav} className="lg:hidden mt-4 space-y-2">
-          <Link to="/" className="block hover:bg-blue-800 px-4 py-2 rounded transition duration-300">
+          <Link
+            to="/"
+            className="block hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
+          >
             Home
           </Link>
-          <Link to="/dashboard" className="block hover:bg-blue-800 px-4 py-2 rounded transition duration-300">
+          <Link
+            to="/dashboard"
+            className="block hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
+          >
             Dashboard
           </Link>
-          <Link to="/courses" className="block hover:bg-blue-800 px-4 py-2 rounded transition duration-300">
+          <Link
+            to="/courses"
+            className="block hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
+          >
             Courses
           </Link>
-          <Link to="/about" className="block hover:bg-blue-800 px-4 py-2 rounded transition duration-300">
+          <Link
+            to="/about"
+            className="block hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
+          >
             About
           </Link>
-          <Link to="/contact" className="block hover:bg-blue-800 px-4 py-2 rounded transition duration-300">
+          <Link
+            to="/contact"
+            className="block hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
+          >
             Contact
           </Link>
           {localStorage.getItem("token") !== null ? (
-            <button onClick={toggleProfilePopup} className="block mx-auto hover:bg-blue-800 px-4 py-2 rounded transition duration-300">
+            <button
+              onClick={toggleProfilePopup}
+              className="block mx-auto hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
+            >
               Profile
             </button>
           ) : (
-            <Link to="/register" className="block mx-auto hover:bg-blue-800 px-4 py-2 rounded transition duration-300">
+            <Link
+              to="/register"
+              className="block mx-auto hover:bg-blue-800 px-4 py-2 rounded transition duration-300"
+            >
               Register
             </Link>
           )}
         </div>
       )}
       <div className="absolute top-4 right-4 mt-20 mr-4">
-        <ProfilePopup isOpen={isProfileOpen} onClose={closePopups} user={user} />
+        <ProfilePopup
+          isOpen={!isProfileOpen}
+          onClose={closePopups}
+          user={user}
+        />
       </div>
     </nav>
   );
