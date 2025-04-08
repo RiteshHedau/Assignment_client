@@ -1,25 +1,29 @@
 FROM node:alpine3.20 as build
 
-# Use Node.js base image
-FROM node:18
+# ===== Stage 1: Build React App =====
+FROM node:18 AS build
 
-# Set working directory
 WORKDIR /app
-
-# Copy dependencies and install
-COPY package*.json ./
+COPY package.json ./
 RUN npm install
-
-# Copy the rest and build
 COPY . .
 RUN npm run build
 
-# Install serve
-RUN npm install -g serve
+# ===== Stage 2: Serve with Nginx =====
+FROM nginx:1.23-alpine
 
-# Expose port and serve
-EXPOSE 3000
-CMD ["serve", "-s", "build", "-l", "3000"]
+# Remove default static files
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy build from previous stage
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Expose port 80
+EXPOSE 80
+
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
+
 
 
 # # Build Stage
