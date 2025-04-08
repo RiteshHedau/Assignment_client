@@ -1,20 +1,25 @@
 FROM node:alpine3.20 as build
 
-# Build App
+# Use Node.js base image
+FROM node:18
+
+# Set working directory
 WORKDIR /app
-COPY package.json .
+
+# Copy dependencies and install
+COPY package*.json ./
 RUN npm install
+
+# Copy the rest and build
 COPY . .
 RUN npm run build
 
+# Install serve
+RUN npm install -g serve
 
-#serve with Ngnix
-FROM nginx:1.23-alpine
-WORKDIR /usr/share/nginx/html
-RUN rm -rf *
-COPY --from=build app/build .
-EXPOSE 80
-ENTRYPOINT [ "nginx", "-g","daemon off;" ]
+# Expose port and serve
+EXPOSE 3000
+CMD ["serve", "-s", "build", "-l", "3000"]
 
 
 # # Build Stage
