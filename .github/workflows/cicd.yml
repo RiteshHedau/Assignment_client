@@ -27,4 +27,4 @@ jobs:
       - name: Delete old container
         run: docker rm -f assignment-client-container
       - name: Run Docker container
-        run: docker run -d -p 80:80 --name assignment-client-container riteshhedau/assignment-client
+        run: docker run -d -p 3000:80 --name assignment-client-container riteshhedau/assignment-client
