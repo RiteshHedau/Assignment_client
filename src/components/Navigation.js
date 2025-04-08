@@ -1,13 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import ProfilePopup from "./ProfilePopup";
 import { RxAvatar } from "react-icons/rx";
 import { IoSearch } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
-import { setAllCourses, setAllCoursesTitle } from "./../Redux/courseSlice";
+import { setAllCourses } from "./../Redux/courseSlice";
 import {
   getAllCoursesBasedOnQuery,
-  getAllCoursesTitle,
 } from "./../ApiCalls/courseApiCalls";
 import {
   FaHome,
@@ -34,14 +33,13 @@ const Navigation = () => {
   const [isTabletSearchOpen, setIsTabletSearchOpen] = useState(false);
 
   const user = useSelector((state) => state.userReducer.user);
-  const allCoursesTitle = useSelector(
-    (state) => state.courseReducer.allCoursesTitle
-  );
+  const allCourses = useSelector((state) => state.courseReducer.allCourses);
   const dispatch = useDispatch();
 
   const closedNav = useRef(null);
   const debounceTimeout = useRef(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navLinks = [
     { path: "/", name: "Home", icon: <FaHome /> },
@@ -103,50 +101,38 @@ const Navigation = () => {
 
     debounceTimeout.current = setTimeout(() => {
       if (value.trim()) {
-        // Make sure allCoursesTitle is an array and properly structured
-        if (Array.isArray(allCoursesTitle)) {
-          const filteredSuggestions = allCoursesTitle.filter((course) =>
-            course.title.toLowerCase().includes(value.toLowerCase())
-          );
-          setSuggestions(filteredSuggestions.slice(0, 5)); // Limit to 5 suggestions
+        if (Array.isArray(allCourses)) {
+          const filteredSuggestions = allCourses
+            .filter((course) =>
+              course.title.toLowerCase().includes(value.toLowerCase())
+            )
+            .map((course) => ({
+              id: course._id,
+              title: course.title,
+              description: course.description,
+            }));
+          setSuggestions(filteredSuggestions.slice(0, 5));
         } else {
-          console.error('allCoursesTitle is not an array:', allCoursesTitle);
-          //setSuggestions([]);
+          setSuggestions([]);
         }
       } else {
-        //setSuggestions([]);
+        setSuggestions([]);
       }
     }, 300);
   };
 
-  const handleSuggestionClick = async (suggestion) => {
-    setSearchInput(suggestion);
-    setSearchClick(suggestion);
+  const handleSuggestionClick = async (course) => {
+    setSearchInput(course.title);
+    setSearchClick(course.title);
     setSuggestions([]);
     setInputFocused(false);
 
-    const response = await getAllCoursesBasedOnQuery(suggestion);
+    const response = await getAllCoursesBasedOnQuery(course.title);
     if (response?.success) {
       dispatch(setAllCourses(response?.data));
+      navigate('/courses');
     }
   };
-
-  const fetchAllCoursesTitle = async () => {
-    try {
-      const response = await getAllCoursesTitle();
-      if (response?.success) {
-        // Make sure we're storing the correct data structure
-        const titles = response.data.titles || [];
-        dispatch(setAllCoursesTitle(titles));
-      }
-    } catch (error) {
-      console.error('Error fetching course titles:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchAllCoursesTitle();
-  }, [user]);
 
   const handleSearch = async () => {
     const searchTerm = searchClick || searchInput;
@@ -155,8 +141,12 @@ const Navigation = () => {
     const response = await getAllCoursesBasedOnQuery(searchTerm);
     if (response?.success) {
       dispatch(setAllCourses(response?.data));
+      navigate("/courses");
+      setIsMobileSearchOpen(false);
+      setIsTabletSearchOpen(false);
+      setSuggestions([]);
+      setInputFocused(false);
     }
-    setSuggestions([]);
   };
 
   useEffect(() => {
@@ -231,22 +221,33 @@ const Navigation = () => {
               </div>
 
               <AnimatePresence>
-                {suggestions.length > 0 && (
+                {inputFocused && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     className="absolute mt-2 w-full bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-50"
                   >
-                    {suggestions.map((course, index) => (
-                      <div
-                        key={index}
-                        className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-gray-800 text-sm border-b last:border-0"
-                        onClick={() => handleSuggestionClick(course.title)}
-                      >
-                        {course.title}
-                      </div>
-                    ))}
+                    {suggestions.length > 0
+                      ? suggestions.map((course, index) => (
+                          <div
+                            key={course.id || index}
+                            className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-gray-800 text-sm border-b last:border-0"
+                            onClick={() => handleSuggestionClick(course)}
+                          >
+                            <div className="font-medium">{course.title}</div>
+                            {course.description && (
+                              <div className="text-xs text-gray-500 truncate">
+                                {course.description}
+                              </div>
+                            )}
+                          </div>
+                        ))
+                      : searchInput && (
+                          <div className="px-4 py-3 text-gray-500 text-center">
+                            No courses found
+                          </div>
+                        )}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -335,25 +336,33 @@ const Navigation = () => {
 
               {/* Mobile Search Suggestions */}
               <div className="mt-4 bg-white rounded-xl shadow-lg border border-gray-200">
-                {suggestions.map((course, index) => (
-                  <div
-                    key={index}
-                    onClick={() => {
-                      handleSuggestionClick(course.title);
-                      toggleMobileSearch();
-                    }}
-                    className="px-4 py-3 border-b last:border-b-0 hover:bg-blue-50 cursor-pointer flex items-center space-x-3"
-                  >
-                    <FaBook className="text-gray-400" />
-                    <span className="text-gray-700">{course.title}</span>
-                  </div>
-                ))}
-                {suggestions.length === 0 && searchInput && (
-                  <div className="px-4 py-3 text-gray-500 text-center">
-                    {/* No courses found  */}
-                    
-                  </div>
-                )}
+                {suggestions.length > 0
+                  ? suggestions.map((course, index) => (
+                      <div
+                        key={course.id || index}
+                        onClick={() => {
+                          handleSuggestionClick(course);
+                          toggleMobileSearch();
+                        }}
+                        className="px-4 py-3 border-b last:border-b-0 hover:bg-blue-50 cursor-pointer flex items-center space-x-3"
+                      >
+                        <FaBook className="text-gray-400" />
+                        <div>
+                          <div className="text-gray-700">{course.title}</div>
+                          {course.description && (
+                            <div className="text-xs text-gray-500 truncate">
+                              {course.description}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  : searchInput && (
+                      <div className="px-4 py-3 text-gray-500 text-center flex items-center justify-center space-x-2">
+                        <FaSearch className="text-gray-400" />
+                        <span>No courses found</span>
+                      </div>
+                    )}
               </div>
             </div>
           </motion.div>
@@ -394,24 +403,33 @@ const Navigation = () => {
 
               {/* Tablet Search Suggestions */}
               <div className="mt-4 bg-white rounded-xl shadow-lg border border-gray-200">
-                {suggestions.map((course, index) => (
-                  <div
-                    key={index}
-                    onClick={() => {
-                      handleSuggestionClick(course.title);
-                      toggleTabletSearch();
-                    }}
-                    className="px-4 py-3 border-b last:border-b-0 hover:bg-blue-50 cursor-pointer flex items-center space-x-3"
-                  >
-                    <FaBook className="text-gray-400" />
-                    <span className="text-gray-700">{course.title}</span>
-                  </div>
-                ))}
-                {suggestions.length === 0 && searchInput && (
-                  <div className="px-4 py-3 text-gray-500 text-center">
-                    No courses found
-                  </div>
-                )}
+                {suggestions.length > 0
+                  ? suggestions.map((course, index) => (
+                      <div
+                        key={course.id || index}
+                        onClick={() => {
+                          handleSuggestionClick(course);
+                          toggleTabletSearch();
+                        }}
+                        className="px-4 py-3 border-b last:border-b-0 hover:bg-blue-50 cursor-pointer flex items-center space-x-3"
+                      >
+                        <FaBook className="text-gray-400" />
+                        <div>
+                          <div className="text-gray-700">{course.title}</div>
+                          {course.description && (
+                            <div className="text-xs text-gray-500 truncate">
+                              {course.description}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  : searchInput && (
+                      <div className="px-4 py-3 text-gray-500 text-center flex items-center justify-center space-x-2">
+                        <FaSearch className="text-gray-400" />
+                        <span>No courses found</span>
+                      </div>
+                    )}
               </div>
             </div>
           </motion.div>

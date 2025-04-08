@@ -22,7 +22,7 @@ const CoursesPanel = () => {
             icon={<FaEdit />}
             title="Edit Courses"
             description="Modify existing course content"
-            link="/admin/courses-edit"
+            link="/admin/courses/edit"
             bgColor="bg-blue-600"
           />
 
@@ -30,7 +30,7 @@ const CoursesPanel = () => {
             icon={<FaTrash />}
             title="Delete Courses"
             description="Remove unwanted courses"
-            link="/admin/courses-delete"
+            link="/admin/courses/delete"
             bgColor="bg-red-600"
           />
 
@@ -38,7 +38,7 @@ const CoursesPanel = () => {
             icon={<FaPlus />}
             title="Add Course"
             description="Create a new course"
-            link="/admin/courses-upload"
+            link="/admin/courses/upload"
             bgColor="bg-green-600"
           />
 

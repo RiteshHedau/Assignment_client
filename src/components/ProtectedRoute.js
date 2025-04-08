@@ -3,10 +3,13 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { getLoggedUser, getAllUsers } from "../ApiCalls/userApiCalls";
 import { useDispatch, useSelector } from "react-redux";
-//import { hideLoader, showLoader } from "../redux/loaderSlice";
+import { showLoader, hideLoader } from "../Redux/loaderSlice";
 import { setAllUsers, setUser } from "../Redux/userSlice";
-import { setAllCourses,setAllCoursesTitle } from "./../Redux/courseSlice";
-import { getAllCourses, getAllCoursesTitle } from "./../ApiCalls/courseApiCalls";
+import { setAllCourses, setAllCoursesTitle } from "./../Redux/courseSlice";
+import {
+  getAllCourses,
+  getAllCoursesTitle,
+} from "./../ApiCalls/courseApiCalls";
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useSelector((state) => state.userReducer);
@@ -17,9 +20,9 @@ const ProtectedRoute = ({ children }) => {
   const getloggedInUser = async () => {
     let response = null;
     try {
-      //dispatch(showLoader())
+      dispatch(showLoader());
       response = await getLoggedUser();
-      //dispatch(hideLoader())
+      dispatch(hideLoader());
 
       if (response.success) {
         dispatch(setUser(response.data));
@@ -28,7 +31,7 @@ const ProtectedRoute = ({ children }) => {
         window.location.href = "/login";
       }
     } catch (error) {
-      //dispatch(hideLoader())
+      dispatch(hideLoader());
       navigate("/login");
     }
   };
@@ -36,9 +39,9 @@ const ProtectedRoute = ({ children }) => {
   const getAllUsersFromDb = async () => {
     let response = null;
     try {
-      //dispatch(showLoader());
+      dispatch(showLoader());
       response = await getAllUsers();
-      //dispatch(hideLoader());
+      dispatch(hideLoader());
 
       if (response.success) {
         dispatch(setAllUsers(response.data));
@@ -47,7 +50,7 @@ const ProtectedRoute = ({ children }) => {
         window.location.href = "/login";
       }
     } catch (error) {
-      //dispatch(hideLoader())
+      dispatch(hideLoader());
       navigate("/login");
     }
   };
@@ -55,9 +58,9 @@ const ProtectedRoute = ({ children }) => {
   const getAllCoursesFromDb = async () => {
     let response = null;
     try {
-      //dispatch(showLoader());
+      dispatch(showLoader());
       response = await getAllCourses();
-      //dispatch(hideLoader());
+      dispatch(hideLoader());
 
       if (response.success) {
         dispatch(setAllCourses(response.data.courses));
@@ -66,7 +69,7 @@ const ProtectedRoute = ({ children }) => {
         window.location.href = "/login";
       }
     } catch (error) {
-      //dispatch(hideLoader())
+      dispatch(hideLoader());
       navigate("/login");
     }
   };
@@ -81,7 +84,7 @@ const ProtectedRoute = ({ children }) => {
         toast.error(response.message);
       }
     } catch (error) {
-      console.error('Error fetching course titles:', error);
+      console.error("Error fetching course titles:", error);
     }
   };
 

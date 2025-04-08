@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { RxAvatar } from "react-icons/rx";
 import { logoutUser } from "../ApiCalls/authUserApi";
 import EditProfileForm from "./EditProfileForm";
 import {
@@ -67,12 +68,20 @@ const ProfilePopup = ({ isOpen, onClose }) => {
           {/* Profile Header */}
           <div className="flex items-center gap-4 mb-6">
             <div className="relative">
-              <img
-                src={user?.profilePic}
-                className="w-16 h-16 rounded-full object-cover border-2 border-blue-100 shadow-md"
-                alt={user?.name}
-              />
+
+              {
+                user?.profilePic ? 
+                (<img
+                  src={user?.profilePic}
+                  className="w-16 h-16 rounded-full object-cover border-2 border-blue-100 shadow-md"
+                  alt={user?.name}
+                />):
+                ( <RxAvatar className="w-16 h-16 text-blue-600" />)
+             
+              
+              }
               <span className="absolute bottom-0 right-0 w-4 h-4 bg-green-400 border-2 border-white rounded-full"></span>
+             
             </div>
             <div className="flex-1 min-w-0">
               <h4 className="text-lg font-semibold text-gray-800 truncate">

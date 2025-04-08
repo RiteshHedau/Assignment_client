@@ -8,7 +8,7 @@ import {
   FaDollarSign,
   FaUser,
 } from "react-icons/fa";
-import { deleteCourse } from "../../../ApiCalls/courseApiCalls";
+import { deleteCourse } from "./../../../ApiCalls/courseApiCalls";
 import { toast } from "react-hot-toast";
 
 const DeleteCourse = () => {
@@ -21,19 +21,22 @@ const DeleteCourse = () => {
     if (window.confirm("Are you sure you want to delete this course?")) {
       setLoading(true);
       setDeletingId(courseId);
+      console.log("Deleting course with ID:", courseId);
       try {
         const response = await deleteCourse(courseId);
         if (response.success) {
           toast.success("Course deleted successfully");
-          // Update your Redux state here to remove the course
           dispatch({ type: "REMOVE_COURSE", payload: courseId });
+        } else {
+          throw new Error(response.message || "Failed to delete course");
         }
       } catch (error) {
-        toast.error("Failed to delete course");
+        toast.error(error.message || "Failed to delete course");
         console.error(error);
+      } finally {
+        setLoading(false);
+        setDeletingId(null);
       }
-      setLoading(false);
-      setDeletingId(null);
     }
   };
 
@@ -84,19 +87,26 @@ const DeleteCourse = () => {
 
             <button
               className={`w-full ${
-                deletingId === course.id
+                loading && deletingId === course.id
                   ? "bg-gray-400"
                   : "bg-red-500 hover:bg-red-600"
               } text-white px-4 py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 ${
-                deletingId === course.id ? "cursor-not-allowed" : ""
+                loading && deletingId === course.id ? "cursor-not-allowed" : ""
               }`}
               onClick={() => handleDelete(course.id)}
-              disabled={deletingId === course.id}
+              disabled={loading && deletingId === course.id}
             >
-              <FaTrash
-                className={deletingId === course.id ? "animate-spin" : ""}
-              />
-              {deletingId === course.id ? "Deleting..." : "Delete Course"}
+              {loading && deletingId === course.id ? (
+                <>
+                  <FaTrash className="animate-spin" />
+                  <span>Deleting...</span>
+                </>
+              ) : (
+                <>
+                  <FaTrash />
+                  <span>Delete Course</span>
+                </>
+              )}
             </button>
           </div>
         ))}

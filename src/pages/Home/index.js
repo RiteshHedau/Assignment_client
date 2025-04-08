@@ -1,20 +1,42 @@
-import React from "react";
+import React, { useEffect } from "react";
 import HeroSection from "./HeroSection";
 import FeaturesSection from "./features";
 import PopularCoursesSection from "./PopularCoursesSection";
 import TestimonialsSection from "./TestimonialsSection";
 import NewsletterSection from "./NewsletterSection";
-import { useSelector } from "react-redux";
+import { getAllCourses } from "../../ApiCalls/courseApiCalls";
+
+
+
 
 
 const Home = () => {
-  const course=useSelector((state)=>state.courseReducer.allCourses)
-  console.log("course",course)
+  const [courses, setCourses] = React.useState([]);
+  console.log("course",courses)
+
+  const getAllCoursesFromDb = async () => {
+    let response = null;
+    try {
+      response = await getAllCourses(1, 6);
+      if (response.success) {
+        setCourses(response.data.courses);
+        console.log("response", response.data.courses);
+      } else {
+        console.error(response.message);
+      }
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+    }
+  };
+
+  useEffect(()=>{
+    getAllCoursesFromDb();
+  },)
   return (
     <div className="font-sans text-gray-800">
       <HeroSection />
       <FeaturesSection />
-      <PopularCoursesSection courses={course} />
+      <PopularCoursesSection courses={courses} />
       <TestimonialsSection />
       <NewsletterSection />
     </div>

@@ -1,17 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { FaPencilAlt, FaEye, FaTimes, FaSave, FaBook, FaClock, FaDollarSign, FaUser, FaLanguage, FaGraduationCap } from "react-icons/fa";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  FaPencilAlt,
+  FaEye,
+  FaTimes,
+  FaSave,
+  FaBook,
+  FaClock,
+  FaDollarSign,
+  FaUser,
+  FaLanguage,
+  FaGraduationCap,
+} from "react-icons/fa";
 import { MdTitle, MdDescription } from "react-icons/md";
 import { toast } from "react-hot-toast";
 import { updateCourse } from "../../../ApiCalls/courseApiCalls";
 
 const EditCourse = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const courses = useSelector((state) => state.courseReducer.allCourses);
   const dispatch = useDispatch();
+  const [course, setCourse] = useState(null);
   const [editingCourse, setEditingCourse] = useState(null);
   const [viewingCourse, setViewingCourse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
+
+  useEffect(() => {
+    const courseToEdit = courses.find((c) => c.id === id);
+    // if (!courseToEdit) {
+    //   toast.error("Course not found");
+    //   navigate("/admin/courses-admin");
+    //   return;
+    // }
+    setCourse(courseToEdit);
+    setEditingCourse(courseToEdit);
+  }, [id, courses, navigate]);
 
   const handleEdit = (course) => {
     setViewingCourse(null);
@@ -31,7 +57,7 @@ const EditCourse = () => {
         setImagePreview(reader.result);
         setEditingCourse({
           ...editingCourse,
-          image: file
+          image: file,
         });
       };
       reader.readAsDataURL(file);
@@ -40,34 +66,38 @@ const EditCourse = () => {
 
   const handleUpdate = async () => {
     // Validate required fields
-    if (!editingCourse.title || !editingCourse.price || !editingCourse.duration) {
+    if (
+      !editingCourse.title ||
+      !editingCourse.price ||
+      !editingCourse.duration
+    ) {
       toast.error("Please fill all required fields");
       return;
     }
 
     setLoading(true);
     try {
-      // Create FormData instance
+     
       const formData = new FormData();
-      
-      // Append all course data
-      Object.keys(editingCourse).forEach(key => {
-        if (key === 'image' && typeof editingCourse[key] === 'object') {
-          formData.append('image', editingCourse[key]);
+
+     
+      Object.keys(editingCourse).forEach((key) => {
+        if (key === "image" && typeof editingCourse[key] === "object") {
+          formData.append("image", editingCourse[key]);
         } else {
           formData.append(key, editingCourse[key]);
         }
       });
 
       const response = await updateCourse(editingCourse.id, formData);
-      
+
       if (response.success) {
-        // Update the course in Redux store with the response data
+       
         dispatch({
           type: "UPDATE_COURSE",
-          payload: response.data // Assuming the API returns the updated course
+          payload: response.data, // Assuming the API returns the 
         });
-        
+
         toast.success("Course updated successfully");
         setEditingCourse(null);
         setImagePreview(null);
@@ -75,7 +105,7 @@ const EditCourse = () => {
         toast.error(response.message || "Failed to update course");
       }
     } catch (error) {
-      console.error('Update course error:', error);
+      console.error("Update course error:", error);
       toast.error(error.response?.data?.message || "Failed to update course");
     } finally {
       setLoading(false);
@@ -112,10 +142,15 @@ const EditCourse = () => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {courses?.map((course) => (
-              <tr key={course.id} className="hover:bg-gray-50 transition-colors">
+              <tr
+                key={course.id}
+                className="hover:bg-gray-50 transition-colors"
+              >
                 <td className="px-6 py-4 whitespace-nowrap">{course.title}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{course.level}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{course.duration}h</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {course.duration}h
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">${course.price}</td>
                 <td className="px-6 py-4 whitespace-nowrap space-x-3">
                   <button
@@ -139,7 +174,7 @@ const EditCourse = () => {
         </table>
       </div>
 
-      {/* View Modal */}
+      
       {viewingCourse && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-2xl">
@@ -207,7 +242,7 @@ const EditCourse = () => {
         </div>
       )}
 
-      {/* Edit Modal */}
+     
       {editingCourse && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start sm:items-center justify-center p-0 sm:p-4 z-50">
           <div className="bg-white w-full sm:rounded-xl p-4 sm:p-6 h-full sm:h-auto sm:w-full sm:max-w-2xl overflow-y-auto">

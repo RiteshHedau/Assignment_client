@@ -14,6 +14,8 @@ import EditCourse from "../pages/Admin/Courses/EditCourse";
 import DeleteCourse from "../pages/Admin/Courses/DeleteCourse";
 import UploadCourse from "../pages/Admin/Courses/UploadCourse";
 import UploadMultipleCourses from "../pages/Admin/Courses/UploadMultipleCourses";
+import About from "../pages/About";
+import Contact from "../pages/Contact";
 
 const router = createBrowserRouter([
   {
@@ -49,18 +51,23 @@ const router = createBrowserRouter([
         children: [
           { path: "users", element: <UserList /> },
           { path: "courses-admin", element: <CoursesPanel /> },
-          { path: "courses-edit", element: <EditCourse /> },
-          { path: "courses-delete", element: <DeleteCourse /> },
-          { path: "courses-upload", element: <UploadCourse /> },
-          {
-            path: "courses/upload-multiple",
-            element: <UploadMultipleCourses />,
-          },
+          { path: "courses/edit", element: <EditCourse /> },
+          { path: "courses/delete", element: <DeleteCourse /> },
+          { path: "courses/upload", element: <UploadCourse /> },
+          { path: "courses/upload-multiple", element: <UploadMultipleCourses /> },
         ],
       },
       {
         path: "profile",
         element: <EditUserForm />,
+      },
+      {
+        path: "about",
+        element: <About />,
+      },
+      {
+        path: "contact",
+        element: <Contact />,
       },
     ],
   },

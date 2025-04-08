@@ -135,16 +135,16 @@ const Dashboard = () => {
             <StatsCard icon={<FaGraduationCap />} title="Completed" value="5" />
           </div>
 
-          {/* Main Content */}
+          
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-            {/* Left Content */}
+          
             <div className="lg:col-span-2 space-y-4 sm:space-y-6">
               <WelcomeHeader user={user} />
               <MyCourses courses={myCourses} />
               <RecommendedCourses recommendedCourses={recommendedCourses} />
             </div>
 
-            {/* Right Sidebar */}
+         
             <div className="space-y-4 sm:space-y-6">
               <RecentActivity recentActivity={dummyRecentActivity} />
               <Certificates certificates={dummyCertificates} />
