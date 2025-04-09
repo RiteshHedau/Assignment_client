@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { loginUser } from "../../ApiCalls/authUserApi";
-import React, { useState } from "react";
+import React from "react";
 import { toast } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { setUser } from "../../Redux/userSlice";
@@ -50,7 +50,9 @@ function Login() {
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-violet-600 to-indigo-800 p-12 text-white items-center">
         <div className="max-w-xl">
           <h1 className="text-5xl font-bold mb-8">Welcome to our platform</h1>
-          <p className="text-lg text-gray-200">Transform your experience with our cutting-edge solutions.</p>
+          <p className="text-lg text-gray-200">
+            Transform your experience with our cutting-edge solutions.
+          </p>
         </div>
       </div>
 
@@ -58,7 +60,9 @@ function Login() {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
         <div className="w-full max-w-md">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-3">Welcome back</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-3">
+              Welcome back
+            </h2>
             <p className="text-gray-600">Please enter your details</p>
           </div>
 
@@ -84,7 +88,9 @@ function Login() {
                 Email address
               </label>
               {errors.email && (
-                <p className="mt-1 text-red-500 text-sm">{errors.email.message}</p>
+                <p className="mt-1 text-red-500 text-sm">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
@@ -103,7 +109,9 @@ function Login() {
                 Password
               </label>
               {errors.password && (
-                <p className="mt-1 text-red-500 text-sm">{errors.password.message}</p>
+                <p className="mt-1 text-red-500 text-sm">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 

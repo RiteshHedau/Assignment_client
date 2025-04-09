@@ -18,6 +18,7 @@ import About from "../pages/About";
 import Contact from "../pages/Contact";
 import Settings from "../pages/Settings";
 
+
 const router = createBrowserRouter([
   {
     path: "/",
