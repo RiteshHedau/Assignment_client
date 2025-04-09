@@ -122,7 +122,7 @@ const ProfilePopup = ({ isOpen, onClose }) => {
                 onClick={handleAdminPanelClick}
               />
             )}
-            <MenuItem icon={<FaCog />} label="Settings" onClick={() => {}} />
+            <MenuItem icon={<FaCog />} label="Settings" onClick={() => {navigate("/settings")}} />
             <div className="my-2 border-t border-gray-100"></div>
             <MenuItem
               icon={<FaSignOutAlt />}

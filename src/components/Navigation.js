@@ -172,6 +172,7 @@ const Navigation = () => {
     } else {
       setIsLoggedIn(true);
     }
+    
   }, [isLoggedIn, isOpen, user]);
 
   return (

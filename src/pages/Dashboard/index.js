@@ -93,7 +93,7 @@ const Dashboard = () => {
   const user = useSelector((state) => state.userReducer.user);
   const allCourses=useSelector((state)=>state.courseReducer.allCourses);
   useEffect(() => {
-    // Simulate loading state
+    
     setTimeout(() => setIsLoading(false), 1000);
   }, []);
 

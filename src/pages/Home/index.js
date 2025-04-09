@@ -10,6 +10,7 @@ import { getAllCourses } from "../../ApiCalls/courseApiCalls";
 
 
 
+
 const Home = () => {
   const [courses, setCourses] = React.useState([]);
   console.log("course",courses)
@@ -29,9 +30,24 @@ const Home = () => {
     }
   };
 
+  const getLoggedUser=async()=>{
+    let response = null;
+    try {
+      response = await getLoggedUser();
+      if (response.success) {
+        console.log("response", response.data.user);
+      } else {
+        console.error(response.message);
+      }
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+  }
+  
+
   useEffect(()=>{
     getAllCoursesFromDb();
-    
+    getLoggedUser();
   },[])
   return (
     <div className="font-sans text-gray-800">

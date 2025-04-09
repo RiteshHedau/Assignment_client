@@ -28,7 +28,7 @@ const Courses = () => {
   console.log("showing title", title);
 
   const fetchCourses = async (page) => {
-    setLoading(true);
+    //setLoading(true);
     dispatch(showLoader());
     try {
       const response = await getAllCourses(page, 6);
@@ -40,7 +40,7 @@ const Courses = () => {
     } catch (error) {
       console.error("Error fetching courses:", error);
     }
-    setLoading(false);
+    //setLoading(false);
     dispatch(hideLoader());
   };
 
@@ -73,31 +73,19 @@ const Courses = () => {
           <div className="w-20 h-1 bg-blue-500 mx-auto mt-2"></div>
         </h2>
 
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in">
-            {
-            searchTerm !== undefined ||
-            searchTerm !== null
-              ? searchTermCourses?.map((course) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in">
+          {searchTerm !== null
+            ? searchTermCourses?.map((course) => (
                 <div className="transform transition duration-300 hover:scale-105">
                   <CourseCard key={course.id} course={course} />
                 </div>
               ))
-              : (
-                allCourses?.map((course) => (
-                  <div className="transform transition duration-300 hover:scale-105">
-                    <CourseCard key={course.id} course={course} />
-                  </div>
-                ))
-   
-             )
-  }
-          </div>
-        )}
+            : allCourses?.map((course) => (
+                <div className="transform transition duration-300 hover:scale-105">
+                  <CourseCard key={course.id} course={course} />
+                </div>
+              ))}
+        </div>
 
         <div className="flex justify-center gap-4 mt-12">
           <button

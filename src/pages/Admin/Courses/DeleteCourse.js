@@ -13,34 +13,14 @@ import {
 import { deleteCourse } from "./../../../ApiCalls/courseApiCalls";
 import { toast } from "react-hot-toast";
 import { hideLoader, showLoader } from "../../../Redux/loaderSlice";
+import { removeSearchTermCourses } from "../../../Redux/courseSlice";
 
 const DeleteCourse = () => {
   const dispatch = useDispatch();
   const courses = useSelector((state) => state.courseReducer.getAllCoursesForEditAndDelete);
   const [loading, setLoading] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
-
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const coursesPerPage = 6;
-  const [totalPages, setTotalPages] = useState(0);
-
-  // const fetchCourses = async (page) => {
-  //   dispatch(showLoader());
-  //   try {
-  //     const response = await getAllCourses(page, coursesPerPage);
-  //     if (response.success) {
-  //       setCourses(response.data.courses);
-  //       setTotalPages(response.data.totalPages);
-  //     } else {
-  //       toast.error("Failed to fetch courses");
-  //     }
-  //   } catch (error) {
-  //     toast.error("Error fetching courses");
-  //   } finally {
-  //     dispatch(hideLoader());
-  //   }
-  // };
+ 
 
   const handleDelete = async (courseId) => {
     if (
@@ -76,7 +56,7 @@ const DeleteCourse = () => {
 
   useEffect(() => {
     //fetchCourses(currentPage);
-  }, []);
+  }, [courses]);
 
   return (
     <div className="bg-gradient-to-br from-white to-red-50 rounded-xl shadow-lg p-8">

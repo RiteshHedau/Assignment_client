@@ -47,6 +47,7 @@ const coursesSlice = createSlice({
         console.error('Payload is not an array:', action.payload);
       }
     },
+
     setGetAllCoursesForEditAndDelete: (state, action) => {
       if (Array.isArray(action.payload)) {
         state.getAllCoursesForEditAndDelete = [...action.payload];
