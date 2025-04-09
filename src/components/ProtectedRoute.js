@@ -5,9 +5,10 @@ import { getLoggedUser, getAllUsers } from "../ApiCalls/userApiCalls";
 import { useDispatch, useSelector } from "react-redux";
 import { showLoader, hideLoader } from "../Redux/loaderSlice";
 import { setAllUsers, setUser } from "../Redux/userSlice";
-import { setAllCourses, setAllCoursesTitle } from "./../Redux/courseSlice";
+import { setAllCourses, setAllCoursesTitle, setGetAllCoursesForEditAndDelete } from "./../Redux/courseSlice";
 import {
   getAllCourses,
+  getAllCoursesForEditAndDelete,
   getAllCoursesTitle,
 } from "./../ApiCalls/courseApiCalls";
 
@@ -83,11 +84,33 @@ const ProtectedRoute = ({ children }) => {
         console.log("All courses title", response.data);
       } else {
         toast.error(response.message);
+        window.location.href = "/login";
       }
     } catch (error) {
       console.error("Error fetching course titles:", error);
+      navigate("/login");
     }
   };
+
+  const getAllCoursesForEditAndDeleteFromDb = async () => {
+    let response = null;
+    try {
+      dispatch(showLoader());
+      response = await getAllCoursesForEditAndDelete();
+      dispatch(hideLoader());
+
+      if (response.success) {
+        dispatch(setGetAllCoursesForEditAndDelete(response.data));
+        console.log("All courses for edit and delete", response.data);
+      } else {
+        toast.error(response.message);
+        window.location.href = "/login";
+      }
+    } catch (error) {
+      dispatch(hideLoader());
+      navigate("/login");
+    }
+  }
 
   useEffect(() => {
     if (localStorage.getItem("token")) {
@@ -95,6 +118,7 @@ const ProtectedRoute = ({ children }) => {
       getAllUsersFromDb();
       getAllCoursesFromDb();
       getAllCoursesTitleFromDb();
+      getAllCoursesForEditAndDeleteFromDb();
       console.log("In ProtectedRoute");
     } else {
       navigate("/login");

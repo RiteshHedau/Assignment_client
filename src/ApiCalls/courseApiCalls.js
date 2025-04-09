@@ -114,3 +114,14 @@ export const createCoursesThroughCsvFile = async (file) => {
     };
   }
 };
+
+export const getAllCoursesForEditAndDelete = async () => {
+  try {
+    const response = await axiosInstance.get(
+      url + "/courses/get-all-courses-edit-delete"
+    );
+    return response.data;
+  } catch (error) {
+    return error;
+  }
+}

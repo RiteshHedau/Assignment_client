@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   FaTrash,
   FaExclamationTriangle,
@@ -11,13 +11,12 @@ import {
   FaArrowRight,
 } from "react-icons/fa";
 import { deleteCourse } from "./../../../ApiCalls/courseApiCalls";
-import { getAllCourses } from "./../../../ApiCalls/courseApiCalls";
 import { toast } from "react-hot-toast";
 import { hideLoader, showLoader } from "../../../Redux/loaderSlice";
 
 const DeleteCourse = () => {
   const dispatch = useDispatch();
-  const [courses, setCourses] = useState([]);
+  const courses = useSelector((state) => state.courseReducer.getAllCoursesForEditAndDelete);
   const [loading, setLoading] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
@@ -26,22 +25,22 @@ const DeleteCourse = () => {
   const coursesPerPage = 6;
   const [totalPages, setTotalPages] = useState(0);
 
-  const fetchCourses = async (page) => {
-    dispatch(showLoader());
-    try {
-      const response = await getAllCourses(page, coursesPerPage);
-      if (response.success) {
-        setCourses(response.data.courses);
-        setTotalPages(response.data.totalPages);
-      } else {
-        toast.error("Failed to fetch courses");
-      }
-    } catch (error) {
-      toast.error("Error fetching courses");
-    } finally {
-      dispatch(hideLoader());
-    }
-  };
+  // const fetchCourses = async (page) => {
+  //   dispatch(showLoader());
+  //   try {
+  //     const response = await getAllCourses(page, coursesPerPage);
+  //     if (response.success) {
+  //       setCourses(response.data.courses);
+  //       setTotalPages(response.data.totalPages);
+  //     } else {
+  //       toast.error("Failed to fetch courses");
+  //     }
+  //   } catch (error) {
+  //     toast.error("Error fetching courses");
+  //   } finally {
+  //     dispatch(hideLoader());
+  //   }
+  // };
 
   const handleDelete = async (courseId) => {
     if (
@@ -55,7 +54,7 @@ const DeleteCourse = () => {
         const response = await deleteCourse(courseId);
         if (response.success) {
           toast.success("Course deleted successfully");
-          fetchCourses(currentPage); // Refresh courses after deletion
+          //fetchCourses(currentPage); // Refresh courses after deletion
         } else {
           throw new Error(response.message || "Failed to delete course");
         }
@@ -68,15 +67,15 @@ const DeleteCourse = () => {
     }
   };
 
-  const changePage = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-      fetchCourses(newPage); // Fetch courses for the new page
-    }
-  };
+  // const changePage = (newPage) => {
+  //   if (newPage >= 1 && newPage <= totalPages) {
+  //     setCurrentPage(newPage);
+  //     fetchCourses(newPage); // Fetch courses for the new page
+  //   }
+  // };
 
   useEffect(() => {
-    fetchCourses(currentPage);
+    //fetchCourses(currentPage);
   }, []);
 
   return (
@@ -159,7 +158,7 @@ const DeleteCourse = () => {
       )}
 
       {/* Pagination Controls */}
-      <div className="flex justify-center mt-6 gap-4">
+      {/* <div className="flex justify-center mt-6 gap-4">
         <button
           onClick={() => changePage(currentPage - 1)}
           disabled={currentPage === 1}
@@ -187,7 +186,7 @@ const DeleteCourse = () => {
           <span>Next</span>
           <FaArrowRight className="text-lg" />
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

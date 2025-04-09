@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { set } from "react-hook-form";
+
 
 const coursesSlice = createSlice({
   name: "course",
@@ -22,7 +22,8 @@ const coursesSlice = createSlice({
     allCourses: [],
     allCoursesTitle: [],
     searchTermValue: null,
-    searchTermCourses:[]
+    searchTermCourses:[],
+    getAllCoursesForEditAndDelete:[],
   },
   reducers: {
     setCourses: (state, action) => {
@@ -46,6 +47,13 @@ const coursesSlice = createSlice({
         console.error('Payload is not an array:', action.payload);
       }
     },
+    setGetAllCoursesForEditAndDelete: (state, action) => {
+      if (Array.isArray(action.payload)) {
+        state.getAllCoursesForEditAndDelete = [...action.payload];
+      } else {
+        console.error('Payload is not an array:', action.payload);
+      }
+    },
     setAllCoursesTitle: (state, action) => {
       if (Array.isArray(action.payload)) {
         state.allCoursesTitle = [...action.payload];
@@ -56,5 +64,5 @@ const coursesSlice = createSlice({
   },
 });
 
-export const { setCourses, setAllCourses,setAllCoursesTitle,setSearchTermCourses,setSearchTermValue } = coursesSlice.actions;
+export const { setCourses, setAllCourses,setAllCoursesTitle,setSearchTermCourses,setSearchTermValue,setGetAllCoursesForEditAndDelete } = coursesSlice.actions;
 export default coursesSlice.reducer;

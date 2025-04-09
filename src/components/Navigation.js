@@ -66,20 +66,24 @@ const Navigation = () => {
 
   const toggleMobileSearch = (course) => {
     setIsMobileSearchOpen(!isMobileSearchOpen);
-    handleSuggestionClick(course);
-    handleSearch();
-    navigate("/courses");
-    setSearchInput("");
-    setSuggestions([]);
+    if(isMobileSearchOpen){
+      handleSuggestionClick(course);
+      handleSearch();
+      navigate("/courses");
+      setSearchInput("");
+      setSuggestions([]);
+    }
   };
 
   const toggleTabletSearch = (course) => {
     setIsTabletSearchOpen(!isTabletSearchOpen);
-    handleSuggestionClick(course);
-    handleSearch();
-    navigate("/courses");
-    setSearchInput("");
-    setSuggestions([]);
+    if(isTabletSearchOpen){
+      handleSuggestionClick(course);
+      handleSearch();
+      navigate("/courses");
+      setSearchInput("");
+      setSuggestions([]);
+    }
   };
 
   useEffect(() => {
@@ -133,9 +137,9 @@ const Navigation = () => {
     setSearchClick(course?.title);
     setSuggestions([]);
     setInputFocused(false);
-    let search = searchInputRef?.current?.value;
+    let search = course.title==undefined?searchInputRef?.current?.value:course?.title;
 
-    const response = await getAllCoursesBasedOnQuery(course?.title || search);
+    const response = await getAllCoursesBasedOnQuery(search);
     if (response?.success) {
       dispatch(setSearchTermCourses(response?.data));
       console.log("suggestion Click Response", response?.data);
@@ -153,6 +157,7 @@ const Navigation = () => {
     const response = await getAllCoursesBasedOnQuery(searchTerm);
     if (response?.success) {
       dispatch(setSearchTermCourses(response?.data));
+      console.log("handle search response", response?.data);
       navigate("/courses");
       setIsMobileSearchOpen(false);
       setIsTabletSearchOpen(false);

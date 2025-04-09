@@ -17,16 +17,18 @@ import { MdTitle, MdDescription } from "react-icons/md";
 import { toast } from "react-hot-toast";
 import { updateCourse } from "../../../ApiCalls/courseApiCalls";
 
+
 const EditCourse = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const courses = useSelector((state) => state.courseReducer.allCourses);
   const dispatch = useDispatch();
   const [course, setCourse] = useState(null);
   const [editingCourse, setEditingCourse] = useState(null);
   const [viewingCourse, setViewingCourse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
+  
+    const courses = useSelector((state) => state.courseReducer.getAllCoursesForEditAndDelete);
 
   useEffect(() => {
     const courseToEdit = courses.find((c) => c.id === id);
