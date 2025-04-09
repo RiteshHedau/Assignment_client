@@ -16,7 +16,7 @@ import UploadCourse from "../pages/Admin/Courses/UploadCourse";
 import UploadMultipleCourses from "../pages/Admin/Courses/UploadMultipleCourses";
 import About from "../pages/About";
 import Contact from "../pages/Contact";
-import {Settings} from "../pages/Settings";
+import Settings from "../pages/Settings";
 
 
 const router = createBrowserRouter([
