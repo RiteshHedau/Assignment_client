@@ -33,7 +33,7 @@ const MyCourses = ({ courses }) => {
           <div key={course?.id} className="bg-gray-50 rounded-lg p-3 sm:p-4 mx-2 sm:mx-0">
             <div className="flex flex-row sm:block gap-3">
               <img
-                src={course?.image}
+                src={course?.thumbnailUrl}
                 alt={course?.title}
                 className="w-24 sm:w-full h-20 sm:h-32 md:h-36 lg:h-40 object-cover rounded-lg"
               />
@@ -42,7 +42,7 @@ const MyCourses = ({ courses }) => {
                   {course?.title}
                 </h3>
                 <p className="text-gray-600 text-xs sm:text-sm mt-1 mb-2">
-                  Instructor: {course?.instructor}
+                  Instructor: {course?.author}
                 </p>
               </div>
             </div>

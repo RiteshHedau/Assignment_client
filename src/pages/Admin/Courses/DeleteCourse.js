@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import {
   FaTrash,
   FaExclamationTriangle,
@@ -7,38 +7,77 @@ import {
   FaClock,
   FaDollarSign,
   FaUser,
+  FaArrowLeft,
+  FaArrowRight,
 } from "react-icons/fa";
 import { deleteCourse } from "./../../../ApiCalls/courseApiCalls";
+import { getAllCourses } from "./../../../ApiCalls/courseApiCalls";
 import { toast } from "react-hot-toast";
+import { hideLoader, showLoader } from "../../../Redux/loaderSlice";
 
 const DeleteCourse = () => {
-  const courses = useSelector((state) => state.courseReducer.allCourses);
   const dispatch = useDispatch();
+  const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const coursesPerPage = 6;
+  const [totalPages, setTotalPages] = useState(0);
+
+  const fetchCourses = async (page) => {
+    dispatch(showLoader());
+    try {
+      const response = await getAllCourses(page, coursesPerPage);
+      if (response.success) {
+        setCourses(response.data.courses);
+        setTotalPages(response.data.totalPages);
+      } else {
+        toast.error("Failed to fetch courses");
+      }
+    } catch (error) {
+      toast.error("Error fetching courses");
+    } finally {
+      dispatch(hideLoader());
+    }
+  };
+
   const handleDelete = async (courseId) => {
-    if (window.confirm("Are you sure you want to delete this course?")) {
-      setLoading(true);
+    if (
+      window.confirm(
+        "⚠️ Are you sure you want to delete this course? This action cannot be undone."
+      )
+    ) {
+      dispatch(showLoader());
       setDeletingId(courseId);
-      console.log("Deleting course with ID:", courseId);
       try {
         const response = await deleteCourse(courseId);
         if (response.success) {
           toast.success("Course deleted successfully");
-          dispatch({ type: "REMOVE_COURSE", payload: courseId });
+          fetchCourses(currentPage); // Refresh courses after deletion
         } else {
           throw new Error(response.message || "Failed to delete course");
         }
       } catch (error) {
         toast.error(error.message || "Failed to delete course");
-        console.error(error);
       } finally {
-        setLoading(false);
+        dispatch(hideLoader());
         setDeletingId(null);
       }
     }
   };
+
+  const changePage = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      fetchCourses(newPage); // Fetch courses for the new page
+    }
+  };
+
+  useEffect(() => {
+    fetchCourses(currentPage);
+  }, []);
 
   return (
     <div className="bg-gradient-to-br from-white to-red-50 rounded-xl shadow-lg p-8">
@@ -118,6 +157,37 @@ const DeleteCourse = () => {
           <p className="text-gray-500 text-xl">No courses available</p>
         </div>
       )}
+
+      {/* Pagination Controls */}
+      <div className="flex justify-center mt-6 gap-4">
+        <button
+          onClick={() => changePage(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`flex items-center gap-2 px-4 py-2 border rounded transition-all duration-300 ${
+            currentPage === 1
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-blue-500 text-white hover:bg-blue-600 transform hover:scale-105"
+          }`}
+        >
+          <FaArrowLeft className="text-lg" />
+          <span>Previous</span>
+        </button>
+        <span className="flex items-center px-4 py-2 text-gray-700">
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={() => changePage(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`flex items-center gap-2 px-4 py-2 border rounded transition-all duration-300 ${
+            currentPage === totalPages
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-blue-500 text-white hover:bg-blue-600 transform hover:scale-105"
+          }`}
+        >
+          <span>Next</span>
+          <FaArrowRight className="text-lg" />
+        </button>
+      </div>
     </div>
   );
 };

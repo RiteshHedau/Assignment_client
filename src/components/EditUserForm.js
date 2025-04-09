@@ -90,6 +90,7 @@ const EditUserForm = ({ user, onClose, onSubmit }) => {
               Cancel
             </button>
             <button
+              
               type="submit"
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >

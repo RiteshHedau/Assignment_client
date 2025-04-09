@@ -79,7 +79,8 @@ const ProtectedRoute = ({ children }) => {
     try {
       response = await getAllCoursesTitle();
       if (response.success) {
-        dispatch(setAllCoursesTitle(response.data.titles));
+        dispatch(setAllCoursesTitle(response.data));
+        console.log("All courses title", response.data);
       } else {
         toast.error(response.message);
       }

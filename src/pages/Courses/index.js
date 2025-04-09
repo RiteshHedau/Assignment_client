@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import CourseCard from "./CourseCard";
 import { getAllCourses } from "./../../ApiCalls/courseApiCalls";
-import { setAllCourses } from "./../../Redux/courseSlice";
+import { setAllCourses, setSearchTermCourses, setSearchTermValue } from "./../../Redux/courseSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { hideLoader, showLoader } from "../../Redux/loaderSlice";
 
 const Courses = () => {
   const [page, setPage] = useState(1);
@@ -10,11 +11,17 @@ const Courses = () => {
   const [loading, setLoading] = useState(false);
 
   const { allCourses } = useSelector((state) => state.courseReducer);
+  const title  = useSelector((state) => state.courseReducer.allCoursesTitle);
+  const searchTerm=useSelector((state) => state.courseReducer.searchTermValue);
+  const searchTermCourses=useSelector((state) => state.courseReducer.searchTermCourses);
+  
   const dispatch = useDispatch();
   console.log("showing courses", allCourses);
+  console.log("showing title", title);
 
   const fetchCourses = async (page) => {
     setLoading(true);
+    dispatch(showLoader())
     try {
       const response = await getAllCourses(page, 6);
       if (response?.success) {
@@ -26,6 +33,7 @@ const Courses = () => {
       console.error("Error fetching courses:", error);
     }
     setLoading(false);
+    dispatch(hideLoader())
   };
 
   useEffect(() => {
@@ -33,12 +41,16 @@ const Courses = () => {
   }, [page]);
 
   const handleNextPage = () => {
+    dispatch(setSearchTermCourses(null))
+    dispatch(setSearchTermValue(null))
     if (page < totalPages) {
       setPage(page + 1);
     }
   };
 
   const handlePrevPage = () => {
+    dispatch(setSearchTermCourses(null))
+    dispatch(setSearchTermValue(null))
     if (page > 1) {
       setPage(page - 1);
     }
@@ -58,7 +70,13 @@ const Courses = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in">
-            {allCourses?.map((course) => (
+            {searchTerm === "" || searchTerm===undefined || searchTerm===null ?  (
+              allCourses?.map((course) => (
+                <div className="transform transition duration-300 hover:scale-105">
+                  <CourseCard key={course.id} course={course} />
+                </div>
+              ))
+            ) : searchTermCourses?.map((course) => (
               <div className="transform transition duration-300 hover:scale-105">
                 <CourseCard key={course.id} course={course} />
               </div>

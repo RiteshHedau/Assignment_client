@@ -95,3 +95,22 @@ export const getCourseById = async (courseId) => {
     return error;
   }
 };
+
+export const createCoursesThroughCsvFile = async (file) => {
+  try {
+    const response = await axiosInstance.post(
+      url + "/courses/create-courses-from-csv",
+      file,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error uploading CSV file:", error.message);
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message,
+    };
+  }
+};

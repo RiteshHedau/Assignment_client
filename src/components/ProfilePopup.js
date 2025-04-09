@@ -83,13 +83,13 @@ const ProfilePopup = ({ isOpen, onClose }) => {
               <span className="absolute bottom-0 right-0 w-4 h-4 bg-green-400 border-2 border-white rounded-full"></span>
              
             </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="text-lg font-semibold text-gray-800 truncate">
+            <div className="flex-1 min-w-0 gap-2">
+              <h4 className="text-lg mx-auto font-semibold text-gray-800 truncate">
                 {user?.name}
               </h4>
-              <div className="flex items-center text-gray-500 text-sm gap-1">
-                <FaEnvelope className="text-blue-500" size={12} />
-                <span className="truncate">{user?.email}</span>
+              <div className="flex justify-center items-center text-gray-500 text-sm gap-2">
+                <FaEnvelope className="text-blue-500" size={14} />
+                <span className="truncate me-4">{user?.email}</span>
               </div>
             </div>
           </div>

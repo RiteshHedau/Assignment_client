@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import { updateUserData } from "./../ApiCalls/userApiCalls";
 import { FaUser, FaEnvelope, FaCamera, FaTimes, FaSave } from "react-icons/fa";
+import { useDispatch } from "react-redux";
+import { hideLoader, showLoader } from "../Redux/loaderSlice";
+import {toast} from 'react-hot-toast'
 
 const EditProfileForm = ({ onClose }) => {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -33,10 +37,14 @@ const EditProfileForm = ({ onClose }) => {
     });
 
     try {
+      dispatch(showLoader());
       const response = await updateUserData(fileFormData);
-      if (response.status === 200) {
+      if (response.statusCode === 200) {
         console.log("User Data:", response.data);
-        onClose(); // Close the popup only after successful submission
+        dispatch(hideLoader());
+        toast.success("Profile updated successfully!");
+        onClose();
+         // Close the popup only after successful submission
       }
     } catch (error) {
       console.error("Error updating user data:", error);

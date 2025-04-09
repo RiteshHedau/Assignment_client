@@ -91,7 +91,7 @@ const dummyCertificates = [
 const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const user = useSelector((state) => state.userReducer.user);
-
+  const allCourses=useSelector((state)=>state.courseReducer.allCourses);
   useEffect(() => {
     // Simulate loading state
     setTimeout(() => setIsLoading(false), 1000);
@@ -140,7 +140,7 @@ const Dashboard = () => {
           
             <div className="lg:col-span-2 space-y-4 sm:space-y-6">
               <WelcomeHeader user={user} />
-              <MyCourses courses={myCourses} />
+              <MyCourses courses={allCourses} />
               <RecommendedCourses recommendedCourses={recommendedCourses} />
             </div>
 

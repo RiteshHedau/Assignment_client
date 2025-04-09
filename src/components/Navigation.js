@@ -4,10 +4,12 @@ import ProfilePopup from "./ProfilePopup";
 import { RxAvatar } from "react-icons/rx";
 import { IoSearch } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
-import { setAllCourses } from "./../Redux/courseSlice";
 import {
-  getAllCoursesBasedOnQuery,
-} from "./../ApiCalls/courseApiCalls";
+  setAllCourses,
+  setSearchTermCourses,
+  setSearchTermValue,
+} from "./../Redux/courseSlice";
+import { getAllCoursesBasedOnQuery } from "./../ApiCalls/courseApiCalls";
 import {
   FaHome,
   FaGraduationCap,
@@ -33,9 +35,12 @@ const Navigation = () => {
   const [isTabletSearchOpen, setIsTabletSearchOpen] = useState(false);
 
   const user = useSelector((state) => state.userReducer.user);
-  const allCourses = useSelector((state) => state.courseReducer.allCourses);
-  const dispatch = useDispatch();
 
+  const allCoursesTitle = useSelector(
+    (state) => state.courseReducer.allCoursesTitle
+  );
+  const dispatch = useDispatch();
+  const searchInputRef = useRef(null);
   const closedNav = useRef(null);
   const debounceTimeout = useRef(null);
   const location = useLocation();
@@ -59,20 +64,22 @@ const Navigation = () => {
     setIsOpen(false);
   };
 
-  const toggleMobileSearch = () => {
+  const toggleMobileSearch = (course) => {
     setIsMobileSearchOpen(!isMobileSearchOpen);
-    if (!isMobileSearchOpen) {
-      setSearchInput("");
-      setSuggestions([]);
-    }
+    handleSuggestionClick(course);
+    handleSearch();
+    navigate("/courses");
+    setSearchInput("");
+    setSuggestions([]);
   };
 
-  const toggleTabletSearch = () => {
+  const toggleTabletSearch = (course) => {
     setIsTabletSearchOpen(!isTabletSearchOpen);
-    if (!isTabletSearchOpen) {
-      setSearchInput("");
-      setSuggestions([]);
-    }
+    handleSuggestionClick(course);
+    handleSearch();
+    navigate("/courses");
+    setSearchInput("");
+    setSuggestions([]);
   };
 
   useEffect(() => {
@@ -101,15 +108,15 @@ const Navigation = () => {
 
     debounceTimeout.current = setTimeout(() => {
       if (value.trim()) {
-        if (Array.isArray(allCourses)) {
-          const filteredSuggestions = allCourses
+        if (Array.isArray(allCoursesTitle)) {
+          const filteredSuggestions = allCoursesTitle
             .filter((course) =>
               course.title.toLowerCase().includes(value.toLowerCase())
             )
             .map((course) => ({
-              id: course._id,
+              //id: course._id,
               title: course.title,
-              description: course.description,
+              //description: course.description,
             }));
           setSuggestions(filteredSuggestions.slice(0, 5));
         } else {
@@ -122,25 +129,30 @@ const Navigation = () => {
   };
 
   const handleSuggestionClick = async (course) => {
-    setSearchInput(course.title);
-    setSearchClick(course.title);
+    setSearchInput(course?.title);
+    setSearchClick(course?.title);
     setSuggestions([]);
     setInputFocused(false);
+    let search = searchInputRef?.current?.value;
 
-    const response = await getAllCoursesBasedOnQuery(course.title);
+    const response = await getAllCoursesBasedOnQuery(course?.title || search);
     if (response?.success) {
-      dispatch(setAllCourses(response?.data));
-      navigate('/courses');
+      dispatch(setSearchTermCourses(response?.data));
+      console.log("suggestion Click Response", response?.data);
+      console.log("course Title", course.title);
+      dispatch(setSearchTermValue(course?.title));
+      navigate("/courses");
     }
   };
 
   const handleSearch = async () => {
-    const searchTerm = searchClick || searchInput;
+    const searchTerm =
+      searchClick || searchInput || searchInputRef.current.value;
     if (!searchTerm.trim()) return;
-
+    console.log("searchTerm", searchTerm);
     const response = await getAllCoursesBasedOnQuery(searchTerm);
     if (response?.success) {
-      dispatch(setAllCourses(response?.data));
+      dispatch(setSearchTermCourses(response?.data));
       navigate("/courses");
       setIsMobileSearchOpen(false);
       setIsTabletSearchOpen(false);
@@ -208,6 +220,7 @@ const Navigation = () => {
                   type="text"
                   placeholder="Search courses..."
                   value={searchInput}
+                  ref={searchInputRef}
                   onChange={handleSearchInputChange}
                   onFocus={() => setInputFocused(true)}
                   className="w-64 pl-10 pr-4 py-2 rounded-full border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-all duration-200"
@@ -326,6 +339,7 @@ const Navigation = () => {
                   type="text"
                   placeholder="Search courses..."
                   value={searchInput}
+                  ref={searchInputRef}
                   onChange={handleSearchInputChange}
                   onFocus={() => setInputFocused(true)}
                   className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-all duration-200"
@@ -342,7 +356,7 @@ const Navigation = () => {
                         key={course.id || index}
                         onClick={() => {
                           handleSuggestionClick(course);
-                          toggleMobileSearch();
+                          toggleMobileSearch(course);
                         }}
                         className="px-4 py-3 border-b last:border-b-0 hover:bg-blue-50 cursor-pointer flex items-center space-x-3"
                       >
@@ -393,6 +407,7 @@ const Navigation = () => {
                   type="text"
                   placeholder="Search courses..."
                   value={searchInput}
+                  ref={searchInputRef}
                   onChange={handleSearchInputChange}
                   onFocus={() => setInputFocused(true)}
                   className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-all duration-200"
@@ -409,7 +424,7 @@ const Navigation = () => {
                         key={course.id || index}
                         onClick={() => {
                           handleSuggestionClick(course);
-                          toggleTabletSearch();
+                          toggleTabletSearch(course);
                         }}
                         className="px-4 py-3 border-b last:border-b-0 hover:bg-blue-50 cursor-pointer flex items-center space-x-3"
                       >

@@ -18,10 +18,11 @@ export const getAllUsers = async () => {
   }
 };
 
-
-export const updateUserData=async(user)=>{
+export const updateUserData = async (user) => {
   try {
-    const response = await axiosInstance.post(url + "/users/update-user",user,
+    const response = await axiosInstance.post(
+      url + "/users/update-user",
+      user,
       {
         headers: { "Content-Type": "multipart/form-data" },
       }
@@ -30,6 +31,15 @@ export const updateUserData=async(user)=>{
   } catch (error) {
     return error;
   }
-}
+};
 
-
+export const getAllCourses = async (page, limit) => {
+  try {
+    const response = await axiosInstance.get(
+      `${url}/courses/get-all-courses?page=${page}&limit=${limit}`
+    );
+    return response.data;
+  } catch (error) {
+    return error;
+  }
+};

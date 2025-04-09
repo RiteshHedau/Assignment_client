@@ -35,11 +35,7 @@ const router = createBrowserRouter([
       },
       {
         path: "courses",
-        element: (
-          <ProtectedRoute>
-            <Courses />
-          </ProtectedRoute>
-        ),
+        element: <Courses />,
       },
       {
         path: "admin",
@@ -54,7 +50,10 @@ const router = createBrowserRouter([
           { path: "courses/edit", element: <EditCourse /> },
           { path: "courses/delete", element: <DeleteCourse /> },
           { path: "courses/upload", element: <UploadCourse /> },
-          { path: "courses/upload-multiple", element: <UploadMultipleCourses /> },
+          {
+            path: "courses/upload-multiple",
+            element: <UploadMultipleCourses />,
+          },
         ],
       },
       {
