@@ -12,7 +12,7 @@ import { hideLoader, showLoader } from "../../Redux/loaderSlice";
 const Courses = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
+  
 
   const { allCourses } = useSelector((state) => state.courseReducer);
   const title = useSelector((state) => state.courseReducer.allCoursesTitle);
