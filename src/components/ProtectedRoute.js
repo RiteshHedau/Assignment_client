@@ -81,7 +81,7 @@ const ProtectedRoute = ({ children }) => {
       response = await getAllCoursesTitle();
       if (response.success) {
         dispatch(setAllCoursesTitle(response.data));
-        console.log("All courses title", response.data);
+        //console.log("All courses title", response.data);
       } else {
         toast.error(response.message);
         window.location.href = "/login";
@@ -101,7 +101,7 @@ const ProtectedRoute = ({ children }) => {
 
       if (response.success) {
         dispatch(setGetAllCoursesForEditAndDelete(response.data));
-        console.log("All courses for edit and delete", response.data);
+        //console.log("All courses for edit and delete", response.data);
       } else {
         toast.error(response.message);
         window.location.href = "/login";
@@ -119,7 +119,7 @@ const ProtectedRoute = ({ children }) => {
       getAllCoursesFromDb();
       getAllCoursesTitleFromDb();
       getAllCoursesForEditAndDeleteFromDb();
-      console.log("In ProtectedRoute");
+     // console.log("In ProtectedRoute");
     } else {
       navigate("/login");
     }

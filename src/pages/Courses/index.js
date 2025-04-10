@@ -46,7 +46,6 @@ const Courses = () => {
 
   useEffect(() => {
     fetchCourses(page);
-    console.log("searchTermCourses  kdjhhijd", searchTermCourses);
   }, [page]);
 
   const handleNextPage = () => {
