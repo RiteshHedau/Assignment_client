@@ -9,8 +9,11 @@ import {
 } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
+import { useDispatch } from "react-redux";
+import { showLoader, hideLoader } from "../../Redux/loaderSlice";
 
 const EditUserForm = ({ user, onClose }) => {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
@@ -18,23 +21,30 @@ const EditUserForm = ({ user, onClose }) => {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleBackdropClick = useCallback((e) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  }, [onClose]);
+  const handleBackdropClick = useCallback(
+    (e) => {
+      if (e.target === e.currentTarget) {
+        onClose();
+      }
+    },
+    [onClose]
+  );
 
-  const handleClose = useCallback((e) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    onClose();
-  }, [onClose]);
+  const handleClose = useCallback(
+    (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      onClose();
+    },
+    [onClose]
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    dispatch(showLoader());
     try {
       await updateUserData(formData);
       toast.success("User updated successfully");
@@ -44,6 +54,7 @@ const EditUserForm = ({ user, onClose }) => {
       console.error(error);
     } finally {
       setIsLoading(false);
+      dispatch(hideLoader());
     }
   };
 
@@ -82,8 +93,10 @@ const EditUserForm = ({ user, onClose }) => {
                        flex items-center justify-center focus:outline-none focus:ring-2 
                        focus:ring-white/50 cursor-pointer group"
             >
-              <FaTimes className="text-white text-xl transform group-hover:scale-110 
-                                transition-transform duration-200" />
+              <FaTimes
+                className="text-white text-xl transform group-hover:scale-110 
+                                transition-transform duration-200"
+              />
             </button>
           </div>
         </div>
@@ -196,26 +209,8 @@ const EditUserForm = ({ user, onClose }) => {
             >
               {isLoading ? (
                 <>
-                  <svg
-                    className="animate-spin h-5 w-5 mr-2"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                      fill="none"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  Saving...
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <span className="ml-2">Saving...</span>
                 </>
               ) : (
                 <>

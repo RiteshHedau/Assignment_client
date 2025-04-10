@@ -3,14 +3,15 @@ import { updateUserData } from "./../ApiCalls/userApiCalls";
 import { FaUser, FaEnvelope, FaCamera, FaTimes, FaSave } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { hideLoader, showLoader } from "../Redux/loaderSlice";
-import {toast} from 'react-hot-toast'
+import { toast } from "react-hot-toast";
 
-const EditProfileForm = ({ onClose }) => {
+const EditProfileForm = ({ user, onClose }) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    profilePic: null,
+    name: user?.name || "",
+    email: user?.email || "",
+    password: "",
+    profilePic: user?.profilePic || null,
   });
 
   const [profilePicFile, setProfilePicFile] = useState(null);
@@ -53,7 +54,7 @@ const EditProfileForm = ({ onClose }) => {
 
   const handleClose = () => {
     onClose();
-   // setIsProfileOpen(true); // Reopen profile popup when edit form closes
+    // setIsProfileOpen(true); // Reopen profile popup when edit form closes
   };
 
   return (
@@ -82,6 +83,12 @@ const EditProfileForm = ({ onClose }) => {
                   <img
                     src={URL.createObjectURL(profilePicFile)}
                     alt="Profile Preview"
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : user?.profilePic ? (
+                  <img
+                    src={user.profilePic}
+                    alt="Current Profile"
                     className="w-full h-full rounded-full object-cover"
                   />
                 ) : (

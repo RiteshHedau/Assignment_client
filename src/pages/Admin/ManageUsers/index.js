@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import { motion } from "framer-motion";
+import { useSelector, useDispatch } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   FaUserEdit,
   FaTrash,
@@ -11,13 +11,17 @@ import {
   FaFilter,
   FaSortAmountDown,
   FaSortAmountUp,
+  FaTimes,
 } from "react-icons/fa";
 import { RxAvatar } from "react-icons/rx";
 import EditUserForm from "./../EditUserForm";
 import { deleteUser } from "../../../ApiCalls/userApiCalls";
+import { setAllUsers } from "../../../Redux/userSlice";
 import toast from "react-hot-toast";
+import { showLoader, hideLoader } from "../../../Redux/loaderSlice";
 
 const ManageUsers = () => {
+  const dispatch = useDispatch();
   const allUsers = useSelector((state) => state.userReducer.allUsers);
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,6 +29,8 @@ const ManageUsers = () => {
   const [filterRole, setFilterRole] = useState("all");
   const [selectedUser, setSelectedUser] = useState(null);
   const [showEditForm, setShowEditForm] = useState(false);
+  const [showLargeImage, setShowLargeImage] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     setUsers(allUsers);
@@ -42,18 +48,28 @@ const ManageUsers = () => {
     filterUsers(searchTerm, role);
   };
 
-  const handleDeleteUser=async(userId) => {
-    try {
-        const response=await deleteUser(userId);
-        if(response.success){
-            toast.success("User deleted successfully");
-            setUsers(users.filter(user => user.id !== userId));
+  const handleDeleteUser = async (userId) => {
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      try {
+        dispatch(showLoader());
+        const response = await deleteUser(userId);
+        if (response.success) {
+          // Update both local and Redux state
+          const updatedUsers = allUsers.filter((user) => user._id !== userId);
+          setUsers(updatedUsers);
+          dispatch(setAllUsers(updatedUsers));
+          toast.success("User deleted successfully");
+        } else {
+          throw new Error(response.message || "Failed to delete user");
         }
-    } catch (error) {
-        console.error("Error deleting user:", error);
+      } catch (error) {
+        toast.error(error.message || "Failed to delete user");
+      } finally {
+        dispatch(hideLoader());
+      }
     }
+  };
 
-  }    
   const filterUsers = (term, role) => {
     let filtered = [...allUsers];
     if (term) {
@@ -88,6 +104,13 @@ const ManageUsers = () => {
   const handleCloseEditForm = () => {
     setSelectedUser(null);
     setShowEditForm(false);
+  };
+
+  const handleImageClick = (profilePic) => {
+    if (profilePic) {
+      setSelectedImage(profilePic);
+      setShowLargeImage(true);
+    }
   };
 
   // Animation variants
@@ -191,7 +214,8 @@ const ManageUsers = () => {
                   <img
                     src={user.profilePic}
                     alt={user.name}
-                    className="w-16 h-16 rounded-full object-cover"
+                    className="w-16 h-16 rounded-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => handleImageClick(user.profilePic)}
                   />
                 ) : (
                   <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
@@ -229,7 +253,10 @@ const ManageUsers = () => {
                   <FaUserEdit />
                   <span>Edit</span>
                 </button>
-                <button onClick={handleDeleteUser(user.id)} className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors">
+                <button
+                  onClick={() => handleDeleteUser(user.id)}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                >
                   <FaTrash />
                   <span>Delete</span>
                 </button>
@@ -237,6 +264,39 @@ const ManageUsers = () => {
             </motion.div>
           ))}
         </motion.div>
+
+        {/* Add Large Image Modal */}
+        <AnimatePresence>
+          {showLargeImage && selectedImage && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowLargeImage(false)}
+              className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 cursor-pointer backdrop-blur-sm"
+            >
+              <motion.div
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0.9 }}
+                className="relative max-w-2xl w-full rounded-2xl overflow-hidden shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <img
+                  src={selectedImage}
+                  alt="Profile"
+                  className="w-full h-auto"
+                />
+                <button
+                  onClick={() => setShowLargeImage(false)}
+                  className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+                >
+                  <FaTimes size={20} />
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Edit Form */}
         {showEditForm && selectedUser && (

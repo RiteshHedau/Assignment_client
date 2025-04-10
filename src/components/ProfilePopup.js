@@ -12,7 +12,9 @@ import {
   FaChartLine,
   FaCertificate,
   FaEnvelope,
+  FaTimes,
 } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
 
 const ProfilePopup = ({ isOpen, onClose }) => {
   const { user } = useSelector((state) => state.userReducer);
@@ -20,6 +22,7 @@ const ProfilePopup = ({ isOpen, onClose }) => {
   const popupRef = useRef(null);
   const isAdmin = user?.role === "admin";
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
+  const [showLargeImage, setShowLargeImage] = useState(false);
 
   const handleSignOut = async () => {
     await logoutUser();
@@ -68,20 +71,21 @@ const ProfilePopup = ({ isOpen, onClose }) => {
           {/* Profile Header */}
           <div className="flex items-center gap-4 mb-6">
             <div className="relative">
-
-              {
-                user?.profilePic ? 
-                (<img
-                  src={user?.profilePic}
-                  className="w-16 h-16 rounded-full object-cover border-2 border-blue-100 shadow-md"
-                  alt={user?.name}
-                />):
-                ( <RxAvatar className="w-16 h-16 text-blue-600" />)
-             
-              
-              }
+              <div
+                onClick={() => user?.profilePic && setShowLargeImage(true)}
+                className="cursor-pointer transform transition-transform hover:scale-105"
+              >
+                {user?.profilePic ? (
+                  <img
+                    src={user?.profilePic}
+                    className="w-16 h-16 rounded-full object-cover border-2 border-blue-100 shadow-md hover:border-blue-300"
+                    alt={user?.name}
+                  />
+                ) : (
+                  <RxAvatar className="w-16 h-16 text-blue-600" />
+                )}
+              </div>
               <span className="absolute bottom-0 right-0 w-4 h-4 bg-green-400 border-2 border-white rounded-full"></span>
-             
             </div>
             <div className="flex-1 min-w-0 gap-2">
               <h4 className="text-lg mx-auto font-semibold text-gray-800 truncate">
@@ -122,7 +126,13 @@ const ProfilePopup = ({ isOpen, onClose }) => {
                 onClick={handleAdminPanelClick}
               />
             )}
-            <MenuItem icon={<FaCog />} label="Settings" onClick={() => {navigate("/settings")}} />
+            <MenuItem
+              icon={<FaCog />}
+              label="Settings"
+              onClick={() => {
+                navigate("/settings");
+              }}
+            />
             <div className="my-2 border-t border-gray-100"></div>
             <MenuItem
               icon={<FaSignOutAlt />}
@@ -133,7 +143,43 @@ const ProfilePopup = ({ isOpen, onClose }) => {
           </div>
         </div>
       </div>
-      {isEditFormOpen && <EditProfileForm onClose={handleCloseEditForm} />}
+
+      {/* Large Profile Image Modal */}
+      <AnimatePresence>
+        {showLargeImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowLargeImage(false)}
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 cursor-pointer backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              className="relative max-w-2xl w-full aspect-square rounded-2xl overflow-hidden shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={user?.profilePic}
+                alt={user?.name}
+                className="w-full h-full object-cover"
+              />
+              <button
+                onClick={() => setShowLargeImage(false)}
+                className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+              >
+                <FaTimes size={20} />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {isEditFormOpen && (
+        <EditProfileForm user={user} onClose={handleCloseEditForm} />
+      )}
     </>
   );
 };
