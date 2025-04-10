@@ -13,7 +13,7 @@ import { getAllCourses } from "../../ApiCalls/courseApiCalls";
 
 const Home = () => {
   const [courses, setCourses] = React.useState([]);
-  console.log("course",courses)
+  //console.log("course",courses)
 
   const getAllCoursesFromDb = async () => {
     let response = null;
