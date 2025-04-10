@@ -28,6 +28,7 @@ const EditProfileForm = ({ onClose }) => {
   };
 
   const handleFormSubmit = async (e) => {
+    dispatch(showLoader());
     e.preventDefault();
 
     let fileFormData = new FormData();
@@ -37,7 +38,6 @@ const EditProfileForm = ({ onClose }) => {
     });
 
     try {
-      dispatch(showLoader());
       const response = await updateUserData(fileFormData);
       if (response.statusCode === 200) {
         console.log("User Data:", response.data);
