@@ -17,6 +17,7 @@ import UploadMultipleCourses from "../pages/Admin/Courses/UploadMultipleCourses"
 import About from "../pages/About";
 import Contact from "../pages/Contact";
 import Settings from "../pages/Settings";
+import ManageUsers from "../pages/Admin/ManageUsers";
 
 const router = createBrowserRouter([
   {
@@ -36,18 +37,18 @@ const router = createBrowserRouter([
       },
       {
         path: "courses",
-        element: (
-            <Courses />
-        ),
+        element: <Courses />,
       },
       {
         path: "admin",
         element: (
+          <ProtectedRoute>
             <AdminPanel />
+          </ProtectedRoute>
         ),
 
         children: [
-          { path: "users", element: <UserList /> },
+          { path: "users", element: <ManageUsers /> },
           { path: "courses-admin", element: <CoursesPanel /> },
           { path: "courses/edit", element: <EditCourse /> },
           { path: "courses/delete", element: <DeleteCourse /> },

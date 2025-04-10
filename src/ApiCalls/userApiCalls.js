@@ -43,3 +43,15 @@ export const getAllCourses = async (page, limit) => {
     return error;
   }
 };
+
+export const deleteUser = async (userId) => {
+  try {
+    const response = await axiosInstance.delete(
+      `${url}/users/delete-user/${userId}`
+    );
+    return response.data;
+  } catch (error) {
+    return error;
+  }
+}
+
