@@ -34,7 +34,7 @@ const Courses = () => {
       const response = await getAllCourses(page, 6);
       if (response?.success) {
         dispatch(setAllCourses(response?.data.courses));
-        console.log("response", response?.data.courses);
+        //console.log("response", response?.data.courses);
         setTotalPages(response?.data.pagination.totalPages);
       }
     } catch (error) {
