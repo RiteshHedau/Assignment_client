@@ -32,7 +32,7 @@ const ProtectedRoute = ({ children }) => {
       if (response.success) {
         dispatch(setUser(response.data));
       } else {
-        toast.error(response.message);
+        //toast.error(response.message);
         //window.location.href = "/login";
       }
     } catch (error) {
@@ -51,7 +51,7 @@ const ProtectedRoute = ({ children }) => {
       if (response.success) {
         dispatch(setAllUsers(response.data));
       } else {
-        toast.error(response.message);
+        //toast.error(response.message);
         //window.location.href = "/login";
       }
     } catch (error) {
@@ -70,7 +70,7 @@ const ProtectedRoute = ({ children }) => {
       if (response.success) {
         dispatch(setAllCourses(response.data.courses));
       } else {
-        toast.error(response.message);
+        //toast.error(response.message);
         //window.location.href = "/login";
       }
     } catch (error) {
@@ -91,7 +91,7 @@ const ProtectedRoute = ({ children }) => {
         //window.location.href = "/login";
       }
     } catch (error) {
-      console.error("Error fetching course titles:", error);
+      //console.error("Error fetching course titles:", error);
       //navigate("/login");
     }
   };
@@ -107,7 +107,7 @@ const ProtectedRoute = ({ children }) => {
         dispatch(setGetAllCoursesForEditAndDelete(response.data));
         //console.log("All courses for edit and delete", response.data);
       } else {
-        toast.error(response.message);
+       // toast.error(response.message);
        // window.location.href = "/login";
       }
     } catch (error) {
