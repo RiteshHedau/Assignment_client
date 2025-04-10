@@ -22,6 +22,7 @@ import {
   FaUserPlus,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import { showLoader,hideLoader } from "../Redux/loaderSlice";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -133,6 +134,7 @@ const Navigation = () => {
   };
 
   const handleSuggestionClick = async (course) => {
+    dispatch(showLoader())
     setSearchInput(course?.title);
     setSearchClick(course?.title);
     setSuggestions([]);
@@ -142,28 +144,32 @@ const Navigation = () => {
     const response = await getAllCoursesBasedOnQuery(search);
     if (response?.success) {
       dispatch(setSearchTermCourses(response?.data));
-      console.log("suggestion Click Response", response?.data);
-      console.log("course Title", course.title);
+      //console.log("suggestion Click Response", response?.data);
+      //console.log("course Title", course.title);
       dispatch(setSearchTermValue(course?.title));
       navigate("/courses");
     }
+    dispatch(hideLoader())
   };
 
   const handleSearch = async () => {
+    dispatch(showLoader())
     const searchTerm =
       searchClick || searchInput || searchInputRef.current.value;
     if (!searchTerm.trim()) return;
-    console.log("searchTerm", searchTerm);
+    //console.log("searchTerm", searchTerm);
     const response = await getAllCoursesBasedOnQuery(searchTerm);
     if (response?.success) {
       dispatch(setSearchTermCourses(response?.data));
-      console.log("handle search response", response?.data);
+      //console.log("handle search response", response?.data);
       navigate("/courses");
       setIsMobileSearchOpen(false);
       setIsTabletSearchOpen(false);
       setSuggestions([]);
       setInputFocused(false);
+      
     }
+    dispatch(hideLoader())
   };
 
   useEffect(() => {

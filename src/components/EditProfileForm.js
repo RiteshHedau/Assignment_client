@@ -41,11 +41,11 @@ const EditProfileForm = ({ onClose }) => {
       const response = await updateUserData(fileFormData);
       if (response.statusCode === 200) {
         console.log("User Data:", response.data);
-        dispatch(hideLoader());
         toast.success("Profile updated successfully!");
         onClose();
-         // Close the popup only after successful submission
+        // Close the popup only after successful submission
       }
+      dispatch(hideLoader());
     } catch (error) {
       console.error("Error updating user data:", error);
     }

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { FaTimes, FaSave, FaUser, FaEnvelope, FaUserTag } from "react-icons/fa";
+import { useDispatch } from "react-redux";
+import { hideLoader, showLoader } from "../Redux/loaderSlice";
 
 const EditUserForm = ({ user, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -8,9 +10,13 @@ const EditUserForm = ({ user, onClose, onSubmit }) => {
     role: user?.role || "user",
   });
 
+  const dispatch = useDispatch();
+
   const handleSubmit = (e) => {
+    dispatch(showLoader());
     e.preventDefault();
     onSubmit(formData);
+    dispatch(hideLoader());
   };
 
   return (

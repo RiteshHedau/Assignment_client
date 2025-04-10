@@ -50,19 +50,23 @@ const Courses = () => {
   }, [page]);
 
   const handleNextPage = () => {
+    dispatch(showLoader())
     dispatch(setSearchTermCourses(null));
     dispatch(setSearchTermValue(null));
     if (page < totalPages) {
       setPage(page + 1);
     }
+    dispatch(hideLoader())
   };
 
   const handlePrevPage = () => {
+    dispatch(showLoader())
     dispatch(setSearchTermCourses(null));
     dispatch(setSearchTermValue(null));
     if (page > 1) {
       setPage(page - 1);
     }
+    dispatch(hideLoader())
   };
 
   return (
