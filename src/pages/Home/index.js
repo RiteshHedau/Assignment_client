@@ -21,7 +21,7 @@ const Home = () => {
       response = await getAllCourses(1, 6);
       if (response.success) {
         setCourses(response.data.courses);
-        console.log("response", response.data.courses);
+        //console.log("response", response.data.courses);
       } else {
         console.error(response.message);
       }
@@ -35,7 +35,7 @@ const Home = () => {
     try {
       response = await getLoggedUser();
       if (response.success) {
-        console.log("response", response.data.user);
+        //console.log("response", response.data.user);
       } else {
         console.error(response.message);
       }
@@ -47,7 +47,7 @@ const Home = () => {
 
   useEffect(()=>{
     getAllCoursesFromDb();
-    getLoggedUser();
+    //getLoggedUser();
   },[])
   return (
     <div className="font-sans text-gray-800">
