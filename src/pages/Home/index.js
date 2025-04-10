@@ -46,8 +46,10 @@ const Home = () => {
   
 
   useEffect(()=>{
-    getAllCoursesFromDb();
-    //getLoggedUser();
+   if( localStorage.getItem("token")){
+     getAllCoursesFromDb();
+     getLoggedUser();
+   }
   },[])
   return (
     <div className="font-sans text-gray-800">

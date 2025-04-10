@@ -37,17 +37,13 @@ const router = createBrowserRouter([
       {
         path: "courses",
         element: (
-          <ProtectedRoute>
             <Courses />
-          </ProtectedRoute>
         ),
       },
       {
         path: "admin",
         element: (
-          <ProtectedRoute>
             <AdminPanel />
-          </ProtectedRoute>
         ),
 
         children: [
