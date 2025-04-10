@@ -5,6 +5,7 @@ import PopularCoursesSection from "./PopularCoursesSection";
 import TestimonialsSection from "./TestimonialsSection";
 import NewsletterSection from "./NewsletterSection";
 import { getAllCourses } from "../../ApiCalls/courseApiCalls";
+import { getLoggedUser } from "../../ApiCalls/userApiCalls";
 
 
 
@@ -30,7 +31,7 @@ const Home = () => {
     }
   };
 
-  const getLoggedUser=async()=>{
+  const getLoggedUserFromDB=async()=>{
     let response = null;
     try {
       response = await getLoggedUser();
@@ -48,7 +49,7 @@ const Home = () => {
   useEffect(()=>{
    if( localStorage.getItem("token")){
      getAllCoursesFromDb();
-     getLoggedUser();
+     getLoggedUserFromDB();
    }
   },[])
   return (
