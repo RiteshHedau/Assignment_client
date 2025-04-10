@@ -18,7 +18,6 @@ import About from "../pages/About";
 import Contact from "../pages/Contact";
 import Settings from "../pages/Settings";
 
-
 const router = createBrowserRouter([
   {
     path: "/",
@@ -37,7 +36,11 @@ const router = createBrowserRouter([
       },
       {
         path: "courses",
-        element: <Courses />,
+        element: (
+          <ProtectedRoute>
+            <Courses />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "admin",
@@ -46,6 +49,7 @@ const router = createBrowserRouter([
             <AdminPanel />
           </ProtectedRoute>
         ),
+
         children: [
           { path: "users", element: <UserList /> },
           { path: "courses-admin", element: <CoursesPanel /> },
@@ -71,9 +75,9 @@ const router = createBrowserRouter([
         element: <Contact />,
       },
       {
-        path:"settings",
-        element:<Settings/>
-      }
+        path: "settings",
+        element: <Settings />,
+      },
     ],
   },
 ]);
