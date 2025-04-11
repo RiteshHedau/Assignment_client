@@ -1,18 +1,40 @@
 import React, { useState, useEffect } from "react";
 import CourseCard from "./CourseCard";
-import { getAllCourses } from "./../../ApiCalls/courseApiCalls";
+import { getAllCourses, getCourseById } from "./../../ApiCalls/courseApiCalls";
 import {
   setAllCourses,
   setSearchTermCourses,
   setSearchTermValue,
 } from "./../../Redux/courseSlice";
+import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { hideLoader, showLoader } from "../../Redux/loaderSlice";
 
 const Courses = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  
+  const dispatch = useDispatch();
+
+  const getCourseUsingNotification = async (courseId) => {
+    try {
+      dispatch(showLoader());
+      const response = await getCourseById(courseId);
+      if (response?.success) {
+        dispatch(setAllCourses([response.data]));
+        dispatch(setSearchTermValue(null));
+        dispatch(setSearchTermCourses(null));
+      }
+    } catch (error) {
+      console.error("Error fetching course:", error);
+      toast.error("Error loading course");
+    } finally {
+      dispatch(hideLoader());
+    }
+  };
+
+  React.useEffect(() => {
+    window.getCourseUsingNotification = getCourseUsingNotification;
+  }, []);
 
   const { allCourses } = useSelector((state) => state.courseReducer);
   const title = useSelector((state) => state.courseReducer.allCoursesTitle);
@@ -23,24 +45,20 @@ const Courses = () => {
     (state) => state.courseReducer.searchTermCourses
   );
 
-  const dispatch = useDispatch();
   console.log("showing courses", allCourses);
   console.log("showing title", title);
 
   const fetchCourses = async (page) => {
-    //setLoading(true);
     dispatch(showLoader());
     try {
       const response = await getAllCourses(page, 6);
       if (response?.success) {
         dispatch(setAllCourses(response?.data.courses));
-        //console.log("response", response?.data.courses);
         setTotalPages(response?.data.pagination.totalPages);
       }
     } catch (error) {
       console.error("Error fetching courses:", error);
     }
-    //setLoading(false);
     dispatch(hideLoader());
   };
 
@@ -49,23 +67,23 @@ const Courses = () => {
   }, [page]);
 
   const handleNextPage = () => {
-    dispatch(showLoader())
+    dispatch(showLoader());
     dispatch(setSearchTermCourses(null));
     dispatch(setSearchTermValue(null));
     if (page < totalPages) {
       setPage(page + 1);
     }
-    dispatch(hideLoader())
+    dispatch(hideLoader());
   };
 
   const handlePrevPage = () => {
-    dispatch(showLoader())
+    dispatch(showLoader());
     dispatch(setSearchTermCourses(null));
     dispatch(setSearchTermValue(null));
     if (page > 1) {
       setPage(page - 1);
     }
-    dispatch(hideLoader())
+    dispatch(hideLoader());
   };
 
   return (

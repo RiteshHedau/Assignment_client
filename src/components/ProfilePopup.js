@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { RxAvatar } from "react-icons/rx";
 import { logoutUser } from "../ApiCalls/authUserApi";
 import EditProfileForm from "./EditProfileForm";
+import Notifications from "./Notifications";
 import {
   FaUserEdit,
   FaSignOutAlt,
@@ -15,6 +16,7 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import socketService from "../services/socketService";
 
 const ProfilePopup = ({ isOpen, onClose }) => {
   const { user } = useSelector((state) => state.userReducer);
@@ -45,6 +47,11 @@ const ProfilePopup = ({ isOpen, onClose }) => {
   };
 
   useEffect(() => {
+    // Ensure socket stays connected when popup opens
+    if (isOpen) {
+      socketService.getSocket();
+    }
+
     const handleClickOutside = (event) => {
       if (popupRef.current && !popupRef.current.contains(event.target)) {
         onClose();
@@ -55,7 +62,7 @@ const ProfilePopup = ({ isOpen, onClose }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [onClose]);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -96,6 +103,7 @@ const ProfilePopup = ({ isOpen, onClose }) => {
                 <span className="truncate me-4">{user?.email}</span>
               </div>
             </div>
+            <Notifications />
           </div>
 
           {/* Stats Grid */}
