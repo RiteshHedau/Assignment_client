@@ -1,12 +1,15 @@
 import { useForm } from "react-hook-form";
 import { loginUser } from "../../ApiCalls/authUserApi";
-import React from "react";
+import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { setUser } from "../../Redux/userSlice";
 import { useDispatch } from "react-redux";
+import { FiLogIn, FiCheck, FiX } from "react-icons/fi";
+import { BiLoaderAlt } from "react-icons/bi";
 
 function Login() {
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const {
@@ -17,30 +20,103 @@ function Login() {
   } = useForm();
 
   const onSubmit = async (data) => {
+    setIsLoading(true);
     try {
       const response = await loginUser(data);
 
       if (response.success) {
-        // First store the token
         localStorage.setItem("token", response.data.accessToken);
-
-        // Then update Redux state
         dispatch(setUser(response.data.user));
 
-        // Show success message
-        toast.success(response.message);
+        toast.custom(
+          (t) => (
+            <div
+              className={`${
+                t.visible ? "animate-toast-slide-in" : "animate-toast-slide-out"
+              } max-w-md w-full bg-gradient-to-br from-emerald-400 to-teal-500 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] rounded-lg pointer-events-auto flex overflow-hidden`}
+            >
+              <div className="flex-1 p-4 relative">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_100%_100%,rgba(255,255,255,0.15),transparent)]" />
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0">
+                    <div className="h-11 w-11 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center animate-success-icon">
+                      <FiCheck className="h-6 w-6 text-white stroke-[3]" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white text-lg tracking-tight">
+                      Welcome Back!
+                    </h3>
+                    <p className="text-emerald-50 mt-1 text-sm">
+                      Successfully logged in ✨
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => toast.dismiss(t.id)}
+                className="p-4 border-l border-emerald-200/20 hover:bg-white/10 transition-colors text-white/75 hover:text-white flex items-center"
+              >
+                <FiX className="w-5 h-5" />
+              </button>
+            </div>
+          ),
+          { duration: 2500, position: "top-center" }
+        );
 
-        // Reset form
         reset();
-
-        // Finally navigate (this should be last)
-        navigate("/dashboard", { replace: true });
+        setTimeout(() => {
+          navigate("/dashboard", { replace: true });
+        }, 1000);
       } else {
-        toast.error(response.message);
+        toast.custom(
+          (t) => (
+            <div
+              className={`${
+                t.visible ? "animate-toast-slide-in" : "animate-toast-slide-out"
+              } max-w-md w-full bg-gradient-to-br from-rose-500 to-red-600 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] rounded-lg pointer-events-auto flex overflow-hidden`}
+            >
+              <div className="flex-1 p-4 relative">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_0%_100%,rgba(255,255,255,0.12),transparent)]" />
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0">
+                    <div className="h-11 w-11 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center animate-error-shake">
+                      <FiX className="h-6 w-6 text-white stroke-[3]" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white text-lg tracking-tight">
+                      Access Denied
+                    </h3>
+                    <p className="text-rose-50 mt-1 text-sm">
+                      Invalid credentials provided 🔐
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => toast.dismiss(t.id)}
+                className="p-4 border-l border-rose-200/20 hover:bg-white/10 transition-colors text-white/75 hover:text-white flex items-center"
+              >
+                <FiX className="w-5 h-5" />
+              </button>
+            </div>
+          ),
+          { duration: 3000, position: "top-center" }
+        );
       }
     } catch (error) {
       console.error("Error logging in user:", error);
-      toast.error("An error occurred during login");
+      toast.error("Something went wrong!", {
+        icon: "⚠️",
+        style: {
+          borderRadius: "10px",
+          background: "#333",
+          color: "#fff",
+        },
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -117,9 +193,17 @@ function Login() {
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-4 px-6 rounded-xl hover:opacity-90 transform transition-all duration-300 hover:scale-[1.02] focus:scale-[.99] font-medium text-lg shadow-lg shadow-violet-300"
+              disabled={isLoading}
+              className={`w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-4 px-6 rounded-xl hover:opacity-90 transform transition-all duration-300 hover:scale-[1.02] focus:scale-[.99] font-medium text-lg shadow-lg shadow-violet-300 flex items-center justify-center gap-2 ${
+                isLoading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
             >
-              Sign in
+              {isLoading ? (
+                <BiLoaderAlt className="w-6 h-6 animate-spin" />
+              ) : (
+                <FiLogIn className="w-6 h-6" />
+              )}
+              {isLoading ? "Signing in..." : "Sign in"}
             </button>
 
             <div className="text-center text-gray-600">
