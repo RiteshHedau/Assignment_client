@@ -1,44 +1,27 @@
 import { useNavigate } from "react-router-dom";
-import { getCourseById } from "../ApiCalls/courseApiCalls";
 import { useDispatch } from "react-redux";
+import { getCourseById } from "../ApiCalls/courseApiCalls";
 import {
   setAllCourses,
   setSearchTermCourses,
   setSearchTermValue,
 } from "../Redux/courseSlice";
-import { showLoader, hideLoader } from "../Redux/loaderSlice";
+import { hideLoader, showLoader } from "../Redux/loaderSlice";
 import { toast } from "react-hot-toast";
 
-export const useNotificationNavigation = (
-  setNotifications,
-  closeNotifications
-) => {
+export const useNotificationNavigation = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleCourseNotification = async (notification) => {
+  const handleCourseClick = async (courseId) => {
     try {
       dispatch(showLoader());
-      const response = await getCourseById(notification.course.id);
-
+      const response = await getCourseById(courseId);
       if (response?.success) {
-        // Update notifications first
-        setNotifications((prev) => {
-          const updated = prev.filter((n) => n.id !== notification.id);
-          localStorage.setItem("notifications", JSON.stringify(updated));
-          return updated;
-        });
-
-        // Handle navigation and state updates
-        await Promise.all([
-          dispatch(setAllCourses([response.data])),
-          dispatch(setSearchTermValue(null)),
-          dispatch(setSearchTermCourses(null)),
-        ]);
-
-        // Close notifications panel
-        closeNotifications();
-
+        dispatch(setAllCourses([response.data]));
+        dispatch(setSearchTermValue(null));
+        dispatch(setSearchTermCourses(null));
+        navigate("/courses?fromNotification=true");
       }
     } catch (error) {
       console.error("Error fetching course:", error);
@@ -48,5 +31,5 @@ export const useNotificationNavigation = (
     }
   };
 
-  return { handleCourseNotification };
+  return { handleCourseClick };
 };

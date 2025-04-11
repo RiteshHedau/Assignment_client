@@ -1,25 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { FaBell } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import socketService from "../services/socketService";
-import { toast } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
 import { useNotificationNavigation } from "../hooks/useNotificationNavigation";
+import notificationService from "../services/notificationService";
 
 const Notifications = () => {
-  const navigate = useNavigate();
   const [notifications, setNotifications] = useState(() => {
     const saved = localStorage.getItem("notifications");
     return saved ? JSON.parse(saved) : [];
   });
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [connected, setConnected] = useState(false);
-  const notificationSound = new Audio("/notification.mp3"); // Add a notification sound file to public folder
-  const { handleCourseNotification } = useNotificationNavigation(
-    setNotifications,
-    () => setIsOpen(false)
-  );
+  const notificationSound = new Audio("/notification.mp3");
+  const { handleCourseClick } = useNotificationNavigation(); // Update the destructured function name
+  const [lastNotificationId, setLastNotificationId] = useState(null);
 
   const notificationVariants = {
     initial: { opacity: 0, x: 50 },
@@ -28,79 +22,49 @@ const Notifications = () => {
   };
 
   useEffect(() => {
-    const socket = socketService.getSocket();
+    const unsubscribe = notificationService.subscribe((notifications) => {
+      const notificationArray = Array.isArray(notifications)
+        ? notifications
+        : [];
+      setNotifications(notificationArray);
+      const unreadCount = notificationService.getUnreadCount();
+      setUnreadCount(unreadCount);
 
-    const handleConnectionStatus = (status) => {
-      setConnected(status === "connected");
-      console.log("Socket status:", status);
-    };
-
-    socketService.addListener(handleConnectionStatus);
-
-    socketService.onNewCourse((data) => {
-      console.log("New course notification:", data);
-      const newNotification = {
-        id: Date.now(),
-        message: data.message,
-        course: {
-          id: data.course.id,
-          title: data.course.title,
-        },
-        time: new Date(),
-        read: false,
-      };
-
-      setNotifications((prev) => {
-        const updated = [newNotification, ...prev];
-        localStorage.setItem("notifications", JSON.stringify(updated));
-        return updated;
-      });
-      setUnreadCount((prev) => prev + 1);
-
-      // Play sound and show toast
-      notificationSound
-        .play()
-        .catch((e) => console.error("Error playing sound:", e));
-      toast.success("New course added!", {
-        duration: 3000,
-        position: "top-right",
-      });
+      const latestNotification = notificationArray[0];
+      if (
+        latestNotification &&
+        latestNotification.id !== lastNotificationId &&
+        unreadCount > 0
+      ) {
+        setLastNotificationId(latestNotification.id);
+        notificationSound
+          .play()
+          .catch((e) => console.error("Error playing sound:", e));
+      }
     });
 
-    return () => {
-      socketService.removeListener(handleConnectionStatus);
-      socket.off("newCourse");
-    };
-  }, [navigate]);
+    const initialNotifications = notificationService.getNotifications();
+    setNotifications(initialNotifications);
+    setUnreadCount(notificationService.getUnreadCount());
+
+    return () => unsubscribe();
+  }, [lastNotificationId]);
 
   const handleNotificationClick = () => {
     setIsOpen(!isOpen);
     if (isOpen) {
+      notificationService.markAllAsRead();
       setUnreadCount(0);
-      setNotifications(notifications.map((n) => ({ ...n, read: true })));
-      localStorage.setItem(
-        "notifications",
-        JSON.stringify(notifications.map((n) => ({ ...n, read: true })))
-      );
-    }
-  };
-
-  const handleNotificationNavigation = async (notification) => {
-    if (notification.course?.id) {
-      await handleCourseNotification(notification.course.id);
-      setIsOpen(false);
-
-      setNotifications((prevNotifications) =>
-        prevNotifications.map((n) =>
-          n.id === notification.id ? { ...n, read: true } : n
-        )
-      );
     }
   };
 
   const handleNotificationClickWithProps = (notification) => {
-    handleCourseNotification(notification);
+    if (notification.course?.id) {
+      handleCourseClick(notification.course.id); // Use the correct function name
+    }
+    notificationService.markAsRead(notification.id);
     setUnreadCount((prev) => Math.max(0, prev - 1));
+    setIsOpen(false);
   };
 
   return (

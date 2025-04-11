@@ -15,27 +15,6 @@ const Courses = () => {
   const [totalPages, setTotalPages] = useState(1);
   const dispatch = useDispatch();
 
-  const getCourseUsingNotification = async (courseId) => {
-    try {
-      dispatch(showLoader());
-      const response = await getCourseById(courseId);
-      if (response?.success) {
-        dispatch(setAllCourses([response.data]));
-        dispatch(setSearchTermValue(null));
-        dispatch(setSearchTermCourses(null));
-      }
-    } catch (error) {
-      console.error("Error fetching course:", error);
-      toast.error("Error loading course");
-    } finally {
-      dispatch(hideLoader());
-    }
-  };
-
-  React.useEffect(() => {
-    window.getCourseUsingNotification = getCourseUsingNotification;
-  }, []);
-
   const { allCourses } = useSelector((state) => state.courseReducer);
   const title = useSelector((state) => state.courseReducer.allCoursesTitle);
   const searchTerm = useSelector(
@@ -48,9 +27,13 @@ const Courses = () => {
   console.log("showing courses", allCourses);
   console.log("showing title", title);
 
-  const fetchCourses = async (page) => {
+  const fetchCourses = async (page, isNotificationNavigation = false) => {
     dispatch(showLoader());
     try {
+      if (isNotificationNavigation) {
+        // Skip fetching all courses if navigating from notification
+        return;
+      }
       const response = await getAllCourses(page, 6);
       if (response?.success) {
         dispatch(setAllCourses(response?.data.courses));
@@ -63,7 +46,9 @@ const Courses = () => {
   };
 
   useEffect(() => {
-    fetchCourses(page);
+    const params = new URLSearchParams(window.location.search);
+    const fromNotification = params.get("fromNotification");
+    fetchCourses(page, fromNotification === "true");
   }, [page]);
 
   const handleNextPage = () => {

@@ -22,7 +22,8 @@ import {
   FaUserPlus,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import { showLoader,hideLoader } from "../Redux/loaderSlice";
+import { showLoader, hideLoader } from "../Redux/loaderSlice";
+import notificationService from "../services/notificationService";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,6 +35,7 @@ const Navigation = () => {
   const [inputFocused, setInputFocused] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isTabletSearchOpen, setIsTabletSearchOpen] = useState(false);
+  const [hasPendingNotifications, setHasPendingNotifications] = useState(false);
 
   const user = useSelector((state) => state.userReducer.user);
 
@@ -67,7 +69,7 @@ const Navigation = () => {
 
   const toggleMobileSearch = (course) => {
     setIsMobileSearchOpen(!isMobileSearchOpen);
-    if(isMobileSearchOpen){
+    if (isMobileSearchOpen) {
       handleSuggestionClick(course);
       handleSearch();
       navigate("/courses");
@@ -78,7 +80,7 @@ const Navigation = () => {
 
   const toggleTabletSearch = (course) => {
     setIsTabletSearchOpen(!isTabletSearchOpen);
-    if(isTabletSearchOpen){
+    if (isTabletSearchOpen) {
       handleSuggestionClick(course);
       handleSearch();
       navigate("/courses");
@@ -134,12 +136,15 @@ const Navigation = () => {
   };
 
   const handleSuggestionClick = async (course) => {
-    dispatch(showLoader())
+    dispatch(showLoader());
     setSearchInput(course?.title);
     setSearchClick(course?.title);
     setSuggestions([]);
     setInputFocused(false);
-    let search = course.title==undefined?searchInputRef?.current?.value:course?.title;
+    let search =
+      course.title == undefined
+        ? searchInputRef?.current?.value
+        : course?.title;
 
     const response = await getAllCoursesBasedOnQuery(search);
     if (response?.success) {
@@ -149,11 +154,11 @@ const Navigation = () => {
       dispatch(setSearchTermValue(course?.title));
       navigate("/courses");
     }
-    dispatch(hideLoader())
+    dispatch(hideLoader());
   };
 
   const handleSearch = async () => {
-    dispatch(showLoader())
+    dispatch(showLoader());
     const searchTerm =
       searchClick || searchInput || searchInputRef.current.value;
     if (!searchTerm.trim()) return;
@@ -167,9 +172,8 @@ const Navigation = () => {
       setIsTabletSearchOpen(false);
       setSuggestions([]);
       setInputFocused(false);
-      
     }
-    dispatch(hideLoader())
+    dispatch(hideLoader());
   };
 
   useEffect(() => {
@@ -178,8 +182,41 @@ const Navigation = () => {
     } else {
       setIsLoggedIn(true);
     }
-    
   }, [isLoggedIn, isOpen, user]);
+
+  useEffect(() => {
+    console.log("Current notification state:", {
+      hasPendingNotifications,
+      storedNotifications: localStorage.getItem("notifications"),
+      parsedNotifications: JSON.parse(
+        localStorage.getItem("notifications") || "[]"
+      ),
+    });
+
+    const initializeNotifications = () => {
+      const storedNotifications = JSON.parse(
+        localStorage.getItem("notifications") || "[]"
+      );
+      const hasUnread = storedNotifications.some((n) => !n.read);
+      setHasPendingNotifications(hasUnread);
+    };
+
+    initializeNotifications();
+
+    const unsubscribe = notificationService.subscribe((notifications) => {
+      const notificationArray = Array.isArray(notifications)
+        ? notifications
+        : [];
+      const hasUnread = notificationArray.some((n) => !n.read);
+      console.log("Notification update:", {
+        hasUnread,
+        notifications: notificationArray,
+      });
+      setHasPendingNotifications(hasUnread);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <nav className="sticky top-0 z-50 bg-white shadow-lg">
@@ -190,7 +227,7 @@ const Navigation = () => {
             <Link to="/" className="flex items-center space-x-3">
               <FaGraduationCap className="h-8 w-8 text-blue-600" />
               <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              TechLearn
+                TechLearn
               </span>
             </Link>
           </div>
@@ -287,33 +324,49 @@ const Navigation = () => {
             </button>
 
             {/* Profile/Register Button */}
-            {localStorage.getItem("token") ? (
+            {localStorage.getItem("token") && (
               <div className="relative">
-                <button
+                <motion.button
                   onClick={toggleProfilePopup}
-                  className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+                  animate={
+                    hasPendingNotifications
+                      ? {
+                          scale: [1, 1.1, 1],
+                        }
+                      : {}
+                  }
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="relative flex items-center space-x-2 hover:opacity-80 transition-opacity"
                 >
                   {user?.profilePic ? (
-                    <img
-                      src={user?.profilePic}
-                      alt="Profile"
-                      className="w-10 h-10 rounded-full border-2 border-blue-500 hover:border-blue-600 transition-colors"
-                    />
+                    <div className="relative">
+                      <img
+                        src={user?.profilePic}
+                        alt="Profile"
+                        className="w-10 h-10 rounded-full border-2 border-blue-500 hover:border-blue-600 transition-colors"
+                      />
+                      {hasPendingNotifications && (
+                        <>
+                          <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
+                          <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping" />
+                        </>
+                      )}
+                    </div>
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                      <RxAvatar className="w-6 h-6 text-blue-600" />
+                    <div className="relative">
+                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                        <RxAvatar className="w-6 h-6 text-blue-600" />
+                      </div>
+                      {hasPendingNotifications && (
+                        <>
+                          <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
+                          <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping" />
+                        </>
+                      )}
                     </div>
                   )}
-                </button>
+                </motion.button>
               </div>
-            ) : (
-              <Link
-                to="/register"
-                className="flex items-center px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-              >
-                <FaUserPlus className="mr-2" />
-                Register
-              </Link>
             )}
 
             {/* Mobile menu button */}
