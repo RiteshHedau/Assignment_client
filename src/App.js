@@ -6,12 +6,14 @@ import FooterSection from "./components/FooterSection";
 import { useSelector } from "react-redux";
 import Loader from "./components/Loader";
 import notificationService from "./services/notificationService";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AppProvider } from "./context/AppProvider";
-import socketService from "./services/socketService";
+import { AnimatePresence } from "framer-motion";
+import SplashScreen from "./components/SplashScreen";
 
 function App() {
   const { loading } = useSelector((state) => state.loaderReducer);
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     // Initialize notification service with offline support
@@ -26,6 +28,10 @@ function App() {
       notificationService.enableOfflineMode()
     );
 
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 5000);
+
     return () => {
       window.removeEventListener("online", () =>
         notificationService.syncOfflineNotifications()
@@ -36,17 +42,19 @@ function App() {
       if (socket) {
         socket.disconnect();
       }
+      clearTimeout(timer);
     };
   }, []);
 
   return (
     <AppProvider>
       <div className="App">
+        <AnimatePresence>{showSplash && <SplashScreen />}</AnimatePresence>
         {loading && <Loader />}
         <Toaster position="top-center" reverseOrder={false} />
-        <Navigation />
+        {!showSplash && <Navigation />}{" "}
+        {/* Only show Navigation when splash is hidden */}
         <div className="min-h-screen bg-gray-100 p-4">
-          {/* You can include navbar here */}
           <Outlet /> {/* <-- This is essential for nested routes to render */}
         </div>
         <FooterSection />

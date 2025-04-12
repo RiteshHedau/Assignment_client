@@ -24,8 +24,8 @@ const Courses = () => {
     (state) => state.courseReducer.searchTermCourses
   );
 
-  console.log("showing courses", allCourses);
-  console.log("showing title", title);
+  // console.log("showing courses", allCourses);
+  // console.log("showing title", title);
 
   const fetchCourses = async (page, isNotificationNavigation = false) => {
     dispatch(showLoader());
