@@ -1,5 +1,5 @@
 import "./App.css";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import Navigation from "./components/Navigation";
 import FooterSection from "./components/FooterSection";
@@ -14,6 +14,9 @@ import SplashScreen from "./components/SplashScreen";
 function App() {
   const { loading } = useSelector((state) => state.loaderReducer);
   const [showSplash, setShowSplash] = useState(true);
+  const location = useLocation();
+
+  const isHomePage = location.pathname === "/" || location.pathname === "/home";
 
   useEffect(() => {
     // Initialize notification service with offline support
@@ -49,7 +52,9 @@ function App() {
   return (
     <AppProvider>
       <div className="App">
-        <AnimatePresence>{showSplash && <SplashScreen />}</AnimatePresence>
+        <AnimatePresence>
+          {showSplash && isHomePage && <SplashScreen />}
+        </AnimatePresence>
         {loading && <Loader />}
         <Toaster position="top-center" reverseOrder={false} />
         {!showSplash && <Navigation />}{" "}

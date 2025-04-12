@@ -52,9 +52,13 @@ const Notifications = () => {
 
   const handleNotificationClick = () => {
     setIsOpen(!isOpen);
-    if (isOpen) {
-      notificationService.markAllAsRead();
-      setUnreadCount(0);
+    if (isOpen && notifications.length > 0 && unreadCount > 0) {
+      try {
+        notificationService.markAllAsRead();
+        setUnreadCount(0);
+      } catch (error) {
+        console.error("Failed to mark notifications as read:", error);
+      }
     }
   };
 

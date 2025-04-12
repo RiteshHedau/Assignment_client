@@ -53,7 +53,7 @@ class NotificationService {
 
   keepSocketAlive() {
     if (!this.isConnected) {
-     // console.log("Keeping socket alive...");
+      // console.log("Keeping socket alive...");
       const socket = socketService.getSocket();
       if (socket) {
         socket.connect();
@@ -63,13 +63,13 @@ class NotificationService {
 
   setupOfflineDetection() {
     window.addEventListener("online", () => {
-    //  console.log("Browser is online, syncing notifications...");
+      //  console.log("Browser is online, syncing notifications...");
       this.syncMissedNotifications();
       this.syncOfflineNotifications();
     });
 
     window.addEventListener("offline", () => {
-     // console.log("Browser is offline");
+      // console.log("Browser is offline");
       this.isConnected = false;
       this.enableOfflineMode();
     });
@@ -77,7 +77,7 @@ class NotificationService {
 
   enableOfflineMode() {
     this.isOffline = true;
-   // console.log("Entering offline mode");
+    // console.log("Entering offline mode");
   }
 
   addNotification(notification) {
@@ -100,7 +100,7 @@ class NotificationService {
 
     if (this.isOffline) {
       this.offlineQueue.push(notification);
-     // console.log("Added to offline queue:", notification);
+      // console.log("Added to offline queue:", notification);
     }
 
     this.notifications.unshift(notification);
@@ -110,7 +110,7 @@ class NotificationService {
 
   syncOfflineNotifications() {
     this.isOffline = false;
-   // console.log("Back online, syncing notifications");
+    // console.log("Back online, syncing notifications");
 
     if (this.offlineQueue.length > 0) {
       this.offlineQueue.forEach((notification) => {
@@ -129,7 +129,7 @@ class NotificationService {
 
     if (this.socket) {
       this.socket.on("connect", () => {
-      //  console.log("Socket connected in notification service");
+        //  console.log("Socket connected in notification service");
         this.isConnected = true;
         this.syncMissedNotifications();
         // Re-subscribe to notifications after reconnection
@@ -139,7 +139,7 @@ class NotificationService {
       });
 
       this.socket.on("disconnect", () => {
-      //  console.log("Socket disconnected in notification service");
+        //  console.log("Socket disconnected in notification service");
         this.isConnected = false;
       });
 
@@ -153,13 +153,13 @@ class NotificationService {
             userId: localStorage.getItem("userId"),
           };
 
-        //  console.log("Storing notification:", notification);
+          //  console.log("Storing notification:", notification);
           this.notifications.unshift(notification); // Add to beginning of array
           this.hasPendingNotifications = true;
 
           // Force immediate storage
           this.forcePersistNotifications();
-        //  console.log("Current notifications:", this.getNotifications());
+          //  console.log("Current notifications:", this.getNotifications());
 
           this.notifyListeners();
         } catch (error) {
@@ -169,7 +169,7 @@ class NotificationService {
 
       // Add handler for missed notifications
       this.socket.on("missed_notifications", (notifications) => {
-      //  console.log("Received missed notifications:", notifications);
+        //  console.log("Received missed notifications:", notifications);
         this.notifications.push(...notifications);
         this.hasPendingNotifications = true;
         this.notifyListeners();
@@ -344,7 +344,7 @@ class NotificationService {
       this.forcePersistNotifications();
       this.notifyListeners();
 
-     // console.log("Notification removed:", notificationId);
+      // console.log("Notification removed:", notificationId);
     } catch (error) {
       console.error("Error removing notification:", error);
     }
@@ -364,6 +364,30 @@ class NotificationService {
       }, 500);
     } catch (error) {
       console.error("Error in markAsRead:", error);
+    }
+  }
+
+  markAllAsRead() {
+    try {
+      const notifications = this.getNotifications();
+      if (!notifications || !Array.isArray(notifications)) {
+        return;
+      }
+
+      const updatedNotifications = notifications.map((notification) => ({
+        ...notification,
+        read: true,
+      }));
+
+      localStorage.setItem(
+        this.storageKey,
+        JSON.stringify(updatedNotifications)
+      );
+      this.listeners.forEach((callback) => callback(updatedNotifications));
+      return updatedNotifications;
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+      return [];
     }
   }
 }
