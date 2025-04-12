@@ -11,7 +11,7 @@ const Notifications = () => {
   });
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const notificationSound = new Audio("/notification.mp3");
+  const notificationSound = new Audio("./../../public/notification.wav");
   const { handleCourseClick } = useNotificationNavigation(); // Update the destructured function name
   const [lastNotificationId, setLastNotificationId] = useState(null);
 
