@@ -53,7 +53,7 @@ class NotificationService {
 
   keepSocketAlive() {
     if (!this.isConnected) {
-      console.log("Keeping socket alive...");
+     // console.log("Keeping socket alive...");
       const socket = socketService.getSocket();
       if (socket) {
         socket.connect();
@@ -63,13 +63,13 @@ class NotificationService {
 
   setupOfflineDetection() {
     window.addEventListener("online", () => {
-      console.log("Browser is online, syncing notifications...");
+    //  console.log("Browser is online, syncing notifications...");
       this.syncMissedNotifications();
       this.syncOfflineNotifications();
     });
 
     window.addEventListener("offline", () => {
-      console.log("Browser is offline");
+     // console.log("Browser is offline");
       this.isConnected = false;
       this.enableOfflineMode();
     });
@@ -77,14 +77,14 @@ class NotificationService {
 
   enableOfflineMode() {
     this.isOffline = true;
-    console.log("Entering offline mode");
+   // console.log("Entering offline mode");
   }
 
   addNotification(notification) {
     // Prevent duplicate notifications within 2 seconds
     const now = Date.now();
     if (now - this.lastNotificationTimestamp < 2000) {
-      console.log("Notification debounced - too soon after last one");
+      // console.log("Notification debounced - too soon after last one");
       return;
     }
 
@@ -92,7 +92,7 @@ class NotificationService {
 
     // Prevent duplicate notifications
     if (this.lastNotificationId === notification.id) {
-      console.log("Duplicate notification prevented:", notification.id);
+      // console.log("Duplicate notification prevented:", notification.id);
       return;
     }
 
@@ -100,7 +100,7 @@ class NotificationService {
 
     if (this.isOffline) {
       this.offlineQueue.push(notification);
-      console.log("Added to offline queue:", notification);
+     // console.log("Added to offline queue:", notification);
     }
 
     this.notifications.unshift(notification);
@@ -110,7 +110,7 @@ class NotificationService {
 
   syncOfflineNotifications() {
     this.isOffline = false;
-    console.log("Back online, syncing notifications");
+   // console.log("Back online, syncing notifications");
 
     if (this.offlineQueue.length > 0) {
       this.offlineQueue.forEach((notification) => {
@@ -129,18 +129,17 @@ class NotificationService {
 
     if (this.socket) {
       this.socket.on("connect", () => {
-        console.log("Socket connected in notification service");
+      //  console.log("Socket connected in notification service");
         this.isConnected = true;
         this.syncMissedNotifications();
         // Re-subscribe to notifications after reconnection
         this.socket.emit("subscribe_notifications", {
           userId: localStorage.getItem("userId"),
         });
-        this.verifyAndInitStorage();
       });
 
       this.socket.on("disconnect", () => {
-        console.log("Socket disconnected in notification service");
+      //  console.log("Socket disconnected in notification service");
         this.isConnected = false;
       });
 
@@ -154,13 +153,13 @@ class NotificationService {
             userId: localStorage.getItem("userId"),
           };
 
-          console.log("Storing notification:", notification);
+        //  console.log("Storing notification:", notification);
           this.notifications.unshift(notification); // Add to beginning of array
           this.hasPendingNotifications = true;
 
           // Force immediate storage
           this.forcePersistNotifications();
-          console.log("Current notifications:", this.getNotifications());
+        //  console.log("Current notifications:", this.getNotifications());
 
           this.notifyListeners();
         } catch (error) {
@@ -170,7 +169,7 @@ class NotificationService {
 
       // Add handler for missed notifications
       this.socket.on("missed_notifications", (notifications) => {
-        console.log("Received missed notifications:", notifications);
+      //  console.log("Received missed notifications:", notifications);
         this.notifications.push(...notifications);
         this.hasPendingNotifications = true;
         this.notifyListeners();
@@ -178,7 +177,7 @@ class NotificationService {
 
       // Handle errors
       this.socket.on("connect_error", (error) => {
-        console.error("Socket connection error:", error);
+        //console.error("Socket connection error:", error);
         this.reconnect();
       });
 
@@ -206,7 +205,7 @@ class NotificationService {
         );
 
         if (existingNotification) {
-          console.log("Duplicate course notification prevented");
+          //console.log("Duplicate course notification prevented");
           return;
         }
 
@@ -224,14 +223,14 @@ class NotificationService {
       });
 
       socket.on("courseUpdated", (data) => {
-        console.log("Course updated notification received:", data);
+        //console.log("Course updated notification received:", data);
         const notification = {
           id: Date.now(),
           message: `Course updated: ${data.course.title}`,
           course: data.course,
           time: new Date(),
           read: false,
-          userId: localStorage.getItem("userId"),
+          //userId: localStorage.getItem("userId"),
         };
 
         this.notifications.unshift(notification);
@@ -312,20 +311,12 @@ class NotificationService {
     }
   }
 
-  verifyAndInitStorage() {
-    console.log("Current storage state:", {
-      notifications: localStorage.getItem(this.storageKey),
-      hasPending: localStorage.getItem(this.hasPendingKey),
-      userId: localStorage.getItem("userId"),
-    });
-  }
-
   persistNotifications() {
     try {
       const notificationsString = JSON.stringify(this.notifications);
       localStorage.setItem(this.storageKey, notificationsString);
       localStorage.setItem(this.hasPendingKey, "true");
-      console.log("Notifications saved to localStorage:", notificationsString);
+      // console.log("Notifications saved to localStorage:", notificationsString);
     } catch (error) {
       console.error("Error saving notifications:", error);
     }
@@ -353,7 +344,7 @@ class NotificationService {
       this.forcePersistNotifications();
       this.notifyListeners();
 
-      console.log("Notification removed:", notificationId);
+     // console.log("Notification removed:", notificationId);
     } catch (error) {
       console.error("Error removing notification:", error);
     }

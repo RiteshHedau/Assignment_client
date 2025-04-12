@@ -185,13 +185,13 @@ const Navigation = () => {
   }, [isLoggedIn, isOpen, user]);
 
   useEffect(() => {
-    console.log("Current notification state:", {
-      hasPendingNotifications,
-      storedNotifications: localStorage.getItem("notifications"),
-      parsedNotifications: JSON.parse(
-        localStorage.getItem("notifications") || "[]"
-      ),
-    });
+    // console.log("Current notification state:", {
+    //   hasPendingNotifications,
+    //   storedNotifications: localStorage.getItem("notifications"),
+    //   parsedNotifications: JSON.parse(
+    //     localStorage.getItem("notifications") || "[]"
+    //   ),
+    // });
 
     const initializeNotifications = () => {
       const storedNotifications = JSON.parse(
@@ -208,10 +208,10 @@ const Navigation = () => {
         ? notifications
         : [];
       const hasUnread = notificationArray.some((n) => !n.read);
-      console.log("Notification update:", {
-        hasUnread,
-        notifications: notificationArray,
-      });
+      // console.log("Notification update:", {
+      //   hasUnread,
+      //   notifications: notificationArray,
+      // });
       setHasPendingNotifications(hasUnread);
     });
 

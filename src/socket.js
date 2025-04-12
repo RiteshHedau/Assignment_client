@@ -8,7 +8,7 @@ socket.on("connect", () => {
 
 socket.on("newCourse", (data) => {
   // Handle the notification (e.g., show a toast message)
-  console.log("New course notification:", data);
+//  console.log("New course notification:", data);
 });
 
 export default socket;

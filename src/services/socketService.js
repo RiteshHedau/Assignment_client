@@ -11,7 +11,7 @@ class SocketService {
   connect() {
     if (this.socket?.connected) return;
 
-    console.log("Connecting to socket server...");
+    //console.log("Connecting to socket server...");
     this.socket = io(url, {
       transports: ["websocket"],
       reconnection: true,
@@ -22,12 +22,12 @@ class SocketService {
     });
 
     this.socket.on("connect", () => {
-      console.log("Socket connected with ID:", this.socket.id);
+    //  console.log("Socket connected with ID:", this.socket.id);
       this.notifyListeners("connected");
     });
 
     this.socket.on("disconnect", (reason) => {
-      console.log("Socket disconnected:", reason);
+    //  console.log("Socket disconnected:", reason);
       this.notifyListeners("disconnected");
     });
 
@@ -40,7 +40,7 @@ class SocketService {
     if (!this.socket) this.connect();
 
     this.socket.on("newCourse", (data) => {
-      console.log("Received course notification:", data);
+    //  console.log("Received course notification:", data);
       callback(data);
     });
   }
